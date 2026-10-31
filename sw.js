@@ -1,4 +1,4 @@
-const N='arl-v1',F=["./", "index.html", "manifest.webmanifest", "icon-192.png", "icon-512.png", "lib/shp.min.js", "lib/Vazirmatn.woff2", "lib/dxf-parser.js", "lib/togeojson.umd.js", "lib/proj4.js"];
+const N='arl-v3',F=["./", "index.html", "manifest.webmanifest", "icon-192.png", "icon-512.png", "lib/shp.min.js", "lib/Vazirmatn.woff2", "lib/dxf-parser.js", "lib/togeojson.umd.js", "lib/leaflet.js", "lib/leaflet.css", "lib/proj4.js"];
 self.addEventListener('install',e=>{e.waitUntil(caches.open(N).then(c=>c.addAll(F)));self.skipWaiting()});
-self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(k=>Promise.all(k.filter(x=>x!==N).map(x=>caches.delete(x)))).then(()=>clients.claim())));
-self.addEventListener('fetch',e=>{if(e.request.method!=='GET')return;e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request)))});
+self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(k=>Promise.all(k.filter(x=>x!==N&&x!=='arl-tiles').map(x=>caches.delete(x)))).then(()=>clients.claim())));
+self.addEventListener('fetch',e=>{const r=e.request;if(r.method!=='GET')return;if(r.url.indexOf('tile.openstreetmap.org')>-1){e.respondWith(caches.open('arl-tiles').then(c=>fetch(r).then(x=>{c.put(r,x.clone());return x}).catch(()=>c.match(r))));return}e.respondWith(caches.match(r).then(x=>x||fetch(r)))});
