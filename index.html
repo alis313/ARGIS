@@ -150,7 +150,9 @@ function drawPlan(){if(!MAP)return;GL.clearLayers();const bs=[],z=MAP.getZoom();
   g.p.forEach(m=>{L.circleMarker([m[1],m[0]],{radius:5,color:'#f472b6',weight:2,fillOpacity:.7}).bindTooltip(esc(l.n)).addTo(GL);bs.push([m[1],m[0]])});
   if(z>=18)g.t.forEach(t=>L.marker([t.y,t.x],{icon:L.divIcon({className:'lb',html:esc(t.t)}),interactive:false}).addTo(GL))})});
  if(bs.length&&!S.fit){S.fit=1;MAP.fitBounds(bs,{maxZoom:19,padding:[30,30]})}planUser()}
-function showPlan(){S.plan=1;$('st').hidden=true;$('mapw').hidden=0;['top','mm','warn','ctl','set','mg'].forEach(i=>$(i).hidden=1);try{if(!MAP)initMap();MAP.invalidateSize();drawPlan()}catch(e){alert('نقشه بارگذاری نشد: '+e.message)}
+function needL(){return new Promise(res=>{if(window.L)return res();const l=document.createElement('link');l.rel='stylesheet';l.href='https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css';document.head.appendChild(l);const s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js';s.onload=res;s.onerror=res;document.head.appendChild(s)})}
+async function showPlan(){S.plan=1;$('st').hidden=true;$('mapw').hidden=0;['top','mm','warn','ctl','set','mg'].forEach(i=>$(i).hidden=1);
+ await needL();try{if(!window.L)throw new Error('کتابخانه‌ی نقشه بارگذاری نشد. پوشه‌ی lib را کامل در GitHub بارگذاری کنید (یا اینترنت را بررسی کنید).');if(!MAP)initMap();MAP.invalidateSize();drawPlan()}catch(e){alert('نقشه بارگذاری نشد: '+e.message)}
  if(!S.gw&&!S.started&&navigator.geolocation){S.gw=1;navigator.geolocation.watchPosition(onGps,()=>{},{enableHighAccuracy:true})}}
 function showAR(){S.plan=0;$('mapw').hidden=1;['top','mm','ctl'].forEach(i=>$(i).hidden=0);if(!S.started)$('st').hidden=0}
 function mg(){const m=$('mg');m.hidden=0;$('dlg').hidden=1;$('set').hidden=1;
@@ -183,29 +185,50 @@ function mg(){const m=$('mg');m.hidden=0;$('dlg').hidden=1;$('set').hidden=1;
  $('im').onclick=()=>$('fb').click()}
 $('fb').onchange=async e=>{const f=e.target.files[0];e.target.value='';if(!f)return;try{const d=JSON.parse(await f.text());if(!d.projects&&!Array.isArray(d.areas))throw 0;DB=d;wire();save();S.fit=0;setArea(0);drawPlan();mg()}catch(x){alert('فایل پشتیبان معتبر نیست')}};
 $('ly').onclick=mg;
-$('fl').onchange=async e=>{const f=e.target.files[0];e.target.value='';if(!f)return;const ext=f.name.split('.').pop().toLowerCase();let gj=null,dx=null;
+$('fl').onchange=async e=>{const f=e.target.files[0];e.target.value='';if(!f)return;const ext=f.name.split('.').pop().toLowerCase();let gj=null,dx=null,txt='';
  if(['gpkg','tif','tiff'].includes(ext)){alert('این فرمت فعلاً پشتیبانی نمی‌شود. از GeoJSON، KML، SHP (ZIP) یا DXF استفاده کنید.');return}
- try{if(ext==='dxf')dx=new(DxfParser.default||DxfParser)().parseSync(await f.text());else if(ext==='zip')gj=await shp(await f.arrayBuffer());
+ try{if(ext==='dxf'){txt=await f.text();dx=new(DxfParser.default||DxfParser)().parseSync(txt)}else if(ext==='zip')gj=await shp(await f.arrayBuffer());
   else if(ext==='kml')gj=toGeoJSON.kml(new DOMParser().parseFromString(await f.text(),'text/xml'));else gj=JSON.parse(await f.text())}catch(x){alert('خطا در خواندن فایل: '+x.message);return}
- dlg(f,gj,dx)};
+ dlg(f,gj,dx,txt)};
 const PRE={'آب':['#22d3ee',1.2],'گاز':['#f97316',1],'برق':['#ef4444',.8],'مخابرات':['#a855f7',.6],'فاضلاب':['#84cc16',2.5],'سایر':['#e5e7eb',1]};
-const GS=[[/gas|گاز/i,'گاز'],[/elec|power|برق/i,'برق'],[/tel|phone|مخابر/i,'مخابرات'],[/sew|waste|فاضلاب/i,'فاضلاب'],[/water|آب/i,'آب']],ZS=[37,38,39,40,41,42],UT=z=>proj4(`+proj=utm +zone=${z} +datum=WGS84 +units=m +no_defs`,'EPSG:4326');
-function dlg(f,gj,dx){const d=$('dlg');d.hidden=0;$('mg').hidden=1;const nm=f.name.replace(/\.[^.]+$/,''),g=(GS.find(x=>x[0].test(nm))||[0,'سایر'])[1],cnt={};
- if(dx)dx.entities.forEach(n=>cnt[n.layer]=(cnt[n.layer]||0)+1);
+const GS=[[/gas|گاز/i,'گاز'],[/elec|power|برق/i,'برق'],[/tel|phone|مخابر/i,'مخابرات'],[/sew|waste|فاضلاب/i,'فاضلاب'],[/water|آب/i,'آب']];
+const UT=(z,h)=>proj4(`+proj=utm +zone=${z}${h=='S'?' +south':''} +datum=WGS84 +units=m +no_defs`,'EPSG:4326'),ZL=[];for(let z=1;z<=60;z++)ZL.push(z+'N');for(let z=1;z<=60;z++)ZL.push(z+'S');
+function zmark(t){let m;t=t.slice(0,3e6);if(m=t.match(/EPSG\s*[:=]?\s*32([67])(\d\d)\b/i))return[+m[2],m[1]=='7'?'S':'N'];if(m=t.match(/UTM(?:84)?[\s_-]*(?:ZONE\s*)?(\d{1,2})\s*([NS])\b/i))return[+m[1],m[2].toUpperCase()];return null}
+const getPos=()=>new Promise(r=>{if(!navigator.geolocation)return r(null);navigator.geolocation.getCurrentPosition(p=>r([p.coords.longitude,p.coords.latitude]),()=>r(null),{timeout:4000,maximumAge:3e5})});
+const ll=(c,z,h)=>{try{const r=UT(z,h).forward([c[0],c[1]]);return isFinite(r[0])&&isFinite(r[1])&&Math.abs(r[1])<=84?r:null}catch(e){return null}};
+async function guess(c,txt){
+ if(Math.abs(c[0])<=180&&Math.abs(c[1])<=90)return{v:'D',why:'مختصات از نوع درجه (lon/lat) است'};
+ if(!(c[0]>=100000&&c[0]<=900000&&c[1]>-2e6&&c[1]<1.1e7))return{v:'L',why:'مختصات محلی و بدون ژئورفرنس به نظر می‌رسد؛ مرکز نقشه روی موقعیت فعلی شما قرار می‌گیرد'};
+ const mk=zmark(txt||'');if(mk&&mk[0]>=1&&mk[0]<=60)return{v:mk[0]+mk[1],why:'پهنه از اطلاعات داخل فایل خوانده شد',ok:1};
+ const gp=await getPos(),ar=DB.areas.find(a=>a.L.length),h=gp?['موقعیت فعلی شما',gp]:ar?['محدوده‌ی «'+ar.n+'»',ar.c]:null;
+ const rank=f=>ZL.map(k=>{const r=ll(c,parseInt(k),k.slice(-1));return r?{k,r,d:f(r)}:null}).filter(Boolean).sort((a,b)=>a.d-b.d);
+ let L,why,ok=0;
+ if(h){L=rank(r=>Math.hypot((r[0]-h[1][0])*Math.cos(h[1][1]*Math.PI/180),r[1]-h[1][1])*111);why='نزدیک‌ترین پهنه به '+h[0];ok=L[0].d<150}
+ else{const lo=-new Date().getTimezoneOffset()/4;L=rank(r=>Math.abs(((r[0]-lo+540)%360)-180)*111+(r[1]<0?1e4:0));why='تخمین بر اساس منطقه‌ی زمانی دستگاه'}
+ return{v:L[0].k,alts:L.slice(0,4),why,ok}}
+let zmM,zmK;const zclose=()=>{if(zmM){zmM.remove();zmM=null}};
+function dlg(f,gj,dx,txt){const d=$('dlg');d.hidden=0;$('mg').hidden=1;zclose();const nm=f.name.replace(/\.[^.]+$/,''),g=(GS.find(x=>x[0].test(nm))||[0,'سایر'])[1],cnt={};let c0=[0,0];
+ if(dx){const xs=[],ys=[];dx.entities.forEach(n=>{cnt[n.layer]=(cnt[n.layer]||0)+1;const q=(n.vertices&&n.vertices[0])||n.position||n.startPoint;if(q&&xs.length<800){xs.push(q.x);ys.push(q.y)}});const md=a=>a.sort((x,y)=>x-y)[a.length>>1]||0;c0=[md(xs),md(ys)]}
  d.innerHTML=`<b>لایه‌ی جدید از «${esc(f.name)}»</b><div class=rw>نام <input id=dn value='${esc(nm)}' style='flex:1'></div><div class=rw>نوع <select id=dt>${Object.keys(PRE).map(k=>`<option ${k==g?'selected':''}>${k}</option>`).join('')}</select> رنگ <input id=dc type=color value=${PRE[g][0]}> عمق <input id=dd type=number step=.1 value=${PRE[g][1]}></div>`+
- (dx?`<div class=rw>پهنه‌ی UTM <select id=zn2>${ZS.map(z=>`<option value=${z}>${z}</option>`).join('')}<option value=0>درجه (lon/lat)</option></select><button id=zg>تشخیص با GPS</button></div><div>لایه‌های DXF:</div>`+Object.keys(cnt).map(l=>`<div class=rw><input type=checkbox data-dl='${esc(l)}' checked><span style='direction:ltr'>${esc(l)} (${cnt[l]})</span></div>`).join(''):'<small>GeoJSON/KML در WGS84 فرض می‌شوند؛ SHP از فایل prj تبدیل می‌شود.</small>')+'<div class=rw><button id=dok>افزودن</button><button id=dno>انصراف</button></div>';
- $('dt').onchange=()=>{const p=PRE[$('dt').value];$('dc').value=p[0];$('dd').value=p[1]};$('dno').onclick=()=>{d.hidden=1;mg()};
- if(dx){const pts=dx.entities.filter(n=>n.vertices&&n.vertices[0]).slice(0,50).map(n=>n.vertices[0]);
-  $('zg').onclick=()=>navigator.geolocation.getCurrentPosition(p=>{let best=0,bd=1e18;ZS.forEach(z=>{const t=UT(z),s=pts.reduce((a,q)=>{const r=t.forward([q.x,q.y]);return[a[0]+r[0],a[1]+r[1]]},[0,0]),lo=s[0]/pts.length,la=s[1]/pts.length,dd=Math.hypot((lo-p.coords.longitude)*Math.cos(la*Math.PI/180),la-p.coords.latitude);if(dd<bd){bd=dd;best=z}});$('zn2').value=best;alert('پهنه‌ی '+best+' (فاصله‌ی داده تا شما حدود '+(bd*111).toFixed(0)+' کیلومتر)')},()=>alert('GPS در دسترس نیست'))}
- $('dok').onclick=()=>{const out={l:[],p:[],t:[]};
-  try{if(dx){const zs=$('zn2').value,ok=new Set([...d.querySelectorAll('[data-dl]')].filter(c=>c.checked).map(c=>c.dataset.dl)),t=zs==='0'?null:UT(zs),r=x=>Math.round(x*1e6)/1e6,cvt=(x,y)=>t?t.forward([x,y]):[x,y];
+ (dx?`<div class=rw>سیستم مختصات <select id=zn2><option value=''>در حال تشخیص…</option><option value=D>درجه (lon/lat)</option><option value=L>محلی (روی موقعیت فعلی من)</option>${ZL.map(k=>`<option value=${k}>UTM ${k}</option>`).join('')}</select></div><div id=zw style='font-size:12px'></div><div id=zp style='font-size:12px;opacity:.85'></div><div id=zc class=rw></div><div id=zmap style='height:150px;border-radius:8px;margin:6px 0'></div><div>لایه‌های DXF:</div>`+Object.keys(cnt).map(l=>`<div class=rw><input type=checkbox data-dl='${esc(l)}' checked><span style='direction:ltr'>${esc(l)} (${cnt[l]})</span></div>`).join(''):'<small>GeoJSON/KML در WGS84 فرض می‌شوند؛ SHP از فایل prj تبدیل می‌شود.</small>')+'<div class=rw><button id=dok>افزودن</button><button id=dno>انصراف</button></div>';
+ $('dt').onchange=()=>{const p=PRE[$('dt').value];$('dc').value=p[0];$('dd').value=p[1]};$('dno').onclick=()=>{zclose();d.hidden=1;mg()};
+ if(dx){const pv=()=>{const v=$('zn2').value;let r=null;if(v==='D')r=c0;else if(v&&v!=='L')r=ll(c0,parseInt(v),v.slice(-1));$('zp').textContent=r?'مرکز داده: '+r[1].toFixed(3)+'°N , '+r[0].toFixed(3)+'°E':'';if(zmM&&r){zmM.setView([r[1],r[0]],8);zmK.setLatLng([r[1],r[0]])}};
+  $('zn2').onchange=pv;
+  needL().then(()=>{if(!window.L||d.hidden)return;zmM=L.map('zmap',{zoomControl:false}).setView([30,50],3);L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OSM'}).addTo(zmM);zmK=L.circleMarker([0,0],{radius:8,color:'#f43f5e',fillOpacity:.8}).addTo(zmM);zmM.invalidateSize();pv()});
+  guess(c0,txt).then(g=>{if(d.hidden)return;$('zn2').value=g.v;$('zw').textContent=g.why+(g.ok?' ✓':(g.alts?' — روی نقشه‌ی زیر بررسی کنید یا گزینه‌ی دیگری بزنید':''));
+   $('zc').innerHTML=(g.alts||[]).map(a=>`<button data-zk=${a.k}>${a.k} (${a.r[1].toFixed(1)}, ${a.r[0].toFixed(1)})</button>`).join('');
+   $('zc').querySelectorAll('[data-zk]').forEach(b=>b.onclick=()=>{$('zn2').value=b.dataset.zk;pv()});pv()})}
+ $('dok').onclick=async()=>{const out={l:[],p:[],t:[]};
+  try{if(dx){const zs=$('zn2').value,ok=new Set([...d.querySelectorAll('[data-dl]')].filter(c=>c.checked).map(c=>c.dataset.dl)),r=x=>Math.round(x*1e6)/1e6;let cvt;
+    if(!zs){alert('سیستم مختصات هنوز مشخص نشده است');return}
+    if(zs==='D')cvt=(x,y)=>[x,y];else if(zs==='L'){const gp=await getPos();if(!gp){alert('برای مختصات محلی باید GPS روشن باشد');return}const k=111320*Math.cos(gp[1]*Math.PI/180);cvt=(x,y)=>[gp[0]+(x-c0[0])/k,gp[1]+(y-c0[1])/110574]}else{const t=UT(parseInt(zs),zs.slice(-1));cvt=(x,y)=>t.forward([x,y])}
     dx.entities.forEach(n=>{if(!ok.has(n.layer))return;
      if(['LWPOLYLINE','POLYLINE','LINE'].includes(n.type)&&n.vertices&&n.vertices.length>1){const a=[];n.vertices.forEach(w=>{const q=cvt(w.x,w.y);a.push(r(q[0]),r(q[1]))});out.l.push(a)}
      else if(n.type==='INSERT'&&n.position){const q=cvt(n.position.x,n.position.y);out.p.push([r(q[0]),r(q[1])])}
      else if((n.type==='TEXT'||n.type==='MTEXT')&&n.text){const s=n.startPoint||n.position;if(s){const q=cvt(s.x,s.y);out.t.push({t:String(n.text).slice(0,30),x:r(q[0]),y:r(q[1])})}}})}else feats(gj,out)}catch(x){alert('خطا: '+x.message);return}
   if(!out.l.length&&!out.p.length){alert('هیچ هندسه‌ای پیدا نشد');return}
-  const b=bbox(out);if(!(Math.abs(b[0])<=180&&Math.abs(b[2])<=180&&Math.abs(b[1])<=90&&Math.abs(b[3])<=90)){alert('مختصات معتبر نیست؛ سیستم مختصات (پهنه‌ی UTM) را بررسی کنید');return}
-  const a=DB.areas[S.tgt];a.L.push({id:'l'+Date.now().toString(36),n:$('dn').value||nm,c:$('dc').value,d:+$('dd').value||1,on:1,w:4,g:out,b});fixC(a);save();d.hidden=1;setArea(S.tgt);S.off=[0,0];S.fit=0;drawPlan();mg()}}
+  const b=bbox(out);if(!(Math.abs(b[0])<=180&&Math.abs(b[2])<=180&&Math.abs(b[1])<=90&&Math.abs(b[3])<=90)){alert('مختصات معتبر نیست؛ سیستم مختصات را بررسی کنید');return}
+  const a=DB.areas[S.tgt];a.L.push({id:'l'+Date.now().toString(36),n:$('dn').value||nm,c:$('dc').value,d:+$('dd').value||1,on:1,w:4,g:out,b});fixC(a);save();zclose();d.hidden=1;setArea(S.tgt);S.off=[0,0];S.fit=0;drawPlan();mg()}}
 $('a2pl').onclick=showPlan;$('m2ar').onclick=showAR;$('m2mg').onclick=mg;$('plo').onclick=showPlan;$('an').onclick=anchor;$('ud').onchange=e=>S.under=e.target.checked?1:0;$('pt').oninput=e=>{S.pt=+e.target.value;$('ptv').textContent=e.target.value};
 (async()=>{await load();setArea(0);if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{})})();
 </script></body></html>
