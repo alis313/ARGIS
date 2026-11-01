@@ -18,7 +18,7 @@
 #drawer{position:fixed;top:0;bottom:0;left:0;width:280px;max-width:84vw;z-index:2101;background:#fff;box-shadow:2px 0 10px #0006;overflow:auto;transform:translateX(-100%);transition:transform .2s}#drawer.o{transform:none}
 #drawer header{background:#1565c0;color:#fff;padding:calc(22px + env(safe-area-inset-top,0px)) 16px 16px}#drawer header b{font-size:20px}#drawer header div{opacity:.85;font-size:12px}
 #drawer button{display:block;width:100%;text-align:left;background:none;border:0;padding:14px 18px;font-size:15px;color:#212121}#drawer button:active{background:#e3f2fd}#drawer hr{border:0;border-top:1px solid #e0e0e0;margin:4px 0}
-#sheet{position:fixed;left:0;right:0;bottom:0;max-height:62vh;overflow:auto;z-index:2050;background:#fff;border-radius:16px 16px 0 0;box-shadow:0 -2px 10px #0006;padding:8px 12px calc(12px + env(safe-area-inset-bottom,0px))}
+#sheet{position:fixed;top:calc(56px + env(safe-area-inset-top,0px));right:0;bottom:0;width:min(340px,90vw);overflow:auto;z-index:2050;background:#fff;box-shadow:-3px 0 12px #0007;padding:6px 12px calc(12px + env(safe-area-inset-bottom,0px));animation:slin .2s}@keyframes slin{from{transform:translateX(100%)}to{transform:none}}
 .li{display:flex;align-items:center;gap:8px;padding:8px 2px;border-bottom:1px solid #eee}.li.a{font-weight:700;background:#f2f7ff;padding:8px 4px;margin-top:6px;border-radius:6px}.li small{color:#666}
 .sw{width:18px;height:18px;border-radius:4px;border:1px solid #0003}
 #dlgw{position:fixed;inset:0;z-index:2200;background:#0008;display:flex;align-items:center;justify-content:center;padding:16px}
@@ -39,7 +39,7 @@
 </style></head><body>
 <video id="v" playsinline muted autoplay></video><canvas id="c"></canvas>
 <div id="mapw"><div id="map"></div><div class="fabs"><button class="fab" id="fx" title="Zoom to project">⤢</button><button class="fab" id="fl2" title="My location">◎</button></div></div>
-<header id="bar"><button class="ib" id="mnu">☰</button><div id="ttl"><b id="pn">Project</b><small id="ar2"></small></div><div id="seg"><button id="vm" class="on">MAP</button><button id="va">AR</button></div></header>
+<header id="bar"><button class="ib" id="mnu">☰</button><div id="ttl"><b id="pn">Project</b><small id="ar2"></small></div><button class="ib" id="lyb" title="Layers"><svg viewBox="0 0 24 24" width="26" height="26"><path fill="#fff" d="M11.99 18.54l-7.37-5.73L3 14.07l9 7 9-7-1.63-1.27-7.38 5.74zM12 16l7.36-5.73L21 9l-9-7-9 7 1.63 1.27L12 16z"/></svg></button><div id="seg"><button id="vm" class="on">MAP</button><button id="va">AR</button></div></header>
 <div id="chip">GPS: waiting…</div>
 <div id="top" hidden><span id="info">…</span><div id="dbg"></div></div><canvas id="mm" width="220" height="220" hidden></canvas><div id="warn" hidden></div>
 <div id="arc" hidden><div class="pad"><button data-m="f">▲</button><button data-m="l">◀</button><button data-m="b">▼</button><button data-m="r">▶</button></div>
@@ -175,7 +175,7 @@ function projects(){dlgShow('<h3>Projects</h3>'+DB.projects.map((p,i)=>`<div cla
  q('[data-px]',e=>e.onclick=()=>{if(DB.projects.length<2){toast('At least one project is required');return}if(confirm('Delete this project and all its areas?')){DB.projects.splice(+e.dataset.px,1);DB.cur=0;sw();projects()}});
  $('pnw').onclick=()=>ask('New project name','',n=>{DB.projects.push({id:'p'+Date.now().toString(36),n,areas:[]});DB.cur=DB.projects.length-1;sw();projects()});$('pcl').onclick=dlgClose}
 function sheet(){const s=$('sheet');s.hidden=0;const p=DB.projects[DB.cur];
- s.innerHTML=`<div class=li><b style='flex:1'>Layers · ${esc(p.n)}</b><button class=tb id=sna>+ Area</button><button class=tb id=sxx>Close</button></div>`+(p.areas.length?'':'<p>No areas yet. Tap “+ Area”, then add layers from files.</p>')+
+ s.innerHTML=`<div class=li><b style='flex:1'>Layers · ${esc(p.n)}</b><button class=tb id=sna>+ Area</button><button class=tb id=sxx>✕</button></div>`+(p.areas.length?'':'<p>No areas yet. Tap “+ Area”, then add layers from files.</p>')+
  p.areas.map((a,i)=>`<div class='li a'><input type=checkbox data-a=${i} ${a.on?'checked':''}><span style='flex:1'>${esc(a.n)}</span><button class=tb data-ad=${i}>+ Layer</button><button class=tb data-ae=${i}>Edit</button></div>`+a.L.map((l,j)=>`<div class=li data-lp=${i}_${j}><input type=checkbox data-l=${i}_${j} ${l.on?'checked':''}><span class=sw style='background:${l.c}'></span><span style='flex:1'>${esc(l.n)}</span><small>${l.d} m</small></div>`).join('')).join('');
  const q=(sel,f)=>s.querySelectorAll(sel).forEach(f),ij=e=>e.split('_').map(Number),chg=()=>{save();rebuild();drawPlan();refresh()};
  $('sxx').onclick=()=>s.hidden=1;$('sna').onclick=()=>ask('New area name','',n=>{DB.areas.push({n,on:1,c:[0,0],L:[]});save();refresh();sheet()});
@@ -213,6 +213,7 @@ const dr=o=>{$('drawer').classList.toggle('o',!!o);$('scrim').hidden=!o};
 $('mnu').onclick=()=>dr(1);$('scrim').onclick=()=>dr(0);
 document.querySelectorAll('#drawer [data-go]').forEach(b=>b.onclick=()=>{dr(0);({proj:projects,lay:sheet,imp:impStart,bak:backup,res:()=>$('fb').click(),help})[b.dataset.go]()});
 $('pt0').onclick=projects;$('vm').onclick=()=>view('map');$('va').onclick=()=>view('ar');$('stc').onclick=()=>view('map');
+$('lyb').onclick=()=>{if($('sheet').hidden)sheet();else $('sheet').hidden=true};
 $('fx').onclick=()=>{S.fit=0;drawPlan()};
 $('fl2').onclick=()=>{if(!navigator.geolocation){toast('Location unavailable');return}navigator.geolocation.getCurrentPosition(p=>{onGps(p);if(MAP)MAP.setView([p.coords.latitude,p.coords.longitude],Math.max(MAP.getZoom(),17))},()=>toast('Location unavailable — allow Location access'),{enableHighAccuracy:true,timeout:15000})};
 $('an').onclick=anchor;$('ud').onchange=e=>S.under=e.target.checked?1:0;$('pt').oninput=e=>{S.pt=+e.target.value;$('ptv').textContent=e.target.value};
