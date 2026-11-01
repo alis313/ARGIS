@@ -1,68 +1,73 @@
-<!doctype html>
-<html lang="fa" dir="rtl"><head><meta charset="utf-8"><title>AR-Links</title>
-<link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#0b1220"><link rel="apple-touch-icon" href="icon-192.png"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes">
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>AR-Links</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<style>@font-face{font-family:Vazirmatn;src:url(lib/Vazirmatn.woff2) format("woff2");font-weight:100 900}</style>
-<link rel="stylesheet" href="lib/leaflet.css"><script src="lib/leaflet.js"></script><script src="lib/proj4.js"></script><script src="lib/shp.min.js"></script><script src="lib/togeojson.umd.js"></script><script src="lib/dxf-parser.js"></script>
-<style>
-:root{--bg:#f4f7fb;--fg:#0f1b2d;--card:#fff;--ac:#0891b2;box-sizing:border-box}
-@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#0b1220;--fg:#e8eefc;--card:#16213a;--ac:#22d3ee}}
-:root[data-theme=dark]{--bg:#0b1220;--fg:#e8eefc;--card:#16213a;--ac:#22d3ee}
-html,body{height:100%;margin:0;background:#000;font-family:Vazirmatn,Tahoma,sans-serif;color:#fff;overflow:hidden;touch-action:none}
+<link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#1565c0"><link rel="apple-touch-icon" href="icon-192.png"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="stylesheet" href="lib/leaflet.css"><script src="lib/leaflet.js"></script><script src="lib/shp.min.js"></script><script src="lib/togeojson.umd.js"></script>
+<style>@font-face{font-family:Vazirmatn;src:url(lib/Vazirmatn.woff2) format("woff2");font-weight:100 900}
+*{box-sizing:border-box}html,body{height:100%;margin:0;background:#000;font:14px/1.4 Roboto,system-ui,Arial,sans-serif;color:#212121;overflow:hidden;touch-action:manipulation}
+[hidden]{display:none!important}button{font:inherit;cursor:pointer}
 #v,#c{position:fixed;inset:0;width:100%;height:100%;object-fit:cover}
-#top{position:fixed;top:0;left:0;right:0;padding:calc(env(safe-area-inset-top,0px) + 8px) 10px 8px;background:linear-gradient(#000a,#0000);font-size:13px;text-align:center}
-#mm{position:fixed;left:10px;top:calc(env(safe-area-inset-top,0px) + 48px);width:110px;height:110px;border-radius:50%;background:#0008;border:1px solid #fff5}
-#warn{position:fixed;left:10px;right:10px;top:calc(env(safe-area-inset-top,0px) + 168px);background:#b45309e6;padding:8px 12px;border-radius:10px;font-size:13px;line-height:1.7}
-#ctl{position:fixed;left:0;right:0;bottom:0;padding:8px 10px calc(env(safe-area-inset-bottom,0px) + 10px);display:flex;justify-content:space-between;align-items:flex-end;direction:ltr}
-.pad{display:grid;grid-template-columns:repeat(3,46px);grid-template-rows:repeat(2,40px);gap:5px}
-.pad button:nth-child(1){grid-column:2}
-button{font:inherit;border:0;border-radius:12px;background:#0f172acc;color:#fff;padding:8px 12px;font-size:15px;border:1px solid #fff4}
-.side{display:flex;flex-direction:column;gap:6px;align-items:flex-end}
-#set{position:fixed;left:10px;right:10px;bottom:calc(env(safe-area-inset-bottom,0px) + 110px);background:#0f172af2;border-radius:14px;padding:12px;font-size:13px}
-#set label{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:6px 0}
-#set input[type=range]{flex:1}
-#st{position:fixed;inset:0;background:var(--bg);color:var(--fg);display:flex;flex-direction:column;justify-content:center;align-items:center;gap:14px;padding:24px;text-align:center}
-#st h1{margin:0;font-size:26px}#st p{max-width:34em;line-height:1.9;margin:0;font-size:14px}
-#st button{background:var(--ac);color:#fff;border:0;font-size:16px;padding:12px 22px;width:min(320px,100%)}
-#st button.s{background:var(--card);color:var(--fg);border:1px solid var(--ac)}
-small{opacity:.7}[hidden]{display:none!important}
-#mg,#dlg{position:fixed;left:10px;right:10px;bottom:calc(env(safe-area-inset-bottom,0px) + 110px);max-height:78vh;overflow:auto;background:#0f172af5;border-radius:14px;padding:12px;font-size:13px}#dlg{z-index:2001}#mg{z-index:2000}.rw{flex-wrap:wrap}#mapw{position:fixed;inset:0;z-index:3;background:#0b1220}#map{position:absolute;inset:0}#mbar{position:absolute;z-index:1000;left:8px;right:8px;top:calc(env(safe-area-inset-top,0px) + 8px);display:flex;gap:8px;direction:rtl}.lb{color:#fff;font:11px Vazirmatn,Tahoma,sans-serif;text-shadow:0 0 3px #000,0 0 3px #000;white-space:nowrap}input[type=color]{width:34px;height:26px;padding:0;border:0;background:none}.ar{border-top:1px solid #fff3;padding-top:4px}
-.rw{display:flex;align-items:center;gap:8px;margin:6px 0}.dot{width:14px;height:14px;border-radius:50%}input[type=number]{width:56px}select{max-width:50%}#mg button,#dlg button{font-size:13px;padding:6px 10px}
+#mapw{position:fixed;inset:0;z-index:3;background:#e5e3df}#map{position:absolute;inset:0}
+#bar{position:fixed;top:0;left:0;right:0;z-index:2000;height:calc(56px + env(safe-area-inset-top,0px));padding-top:env(safe-area-inset-top,0px);background:#1565c0;color:#fff;display:flex;align-items:center;gap:4px;box-shadow:0 2px 6px #0006}
+.ib{background:none;border:0;color:#fff;font-size:24px;width:48px;height:48px}
+#ttl{flex:1;min-width:0;line-height:1.2;cursor:pointer}#ttl b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:16px}#ttl small{opacity:.85;font-size:12px}
+#seg{display:flex;margin-right:8px;border:1px solid #fff9;border-radius:6px;overflow:hidden}#seg button{background:none;border:0;color:#fff;padding:7px 12px;font-weight:700}#seg .on{background:#fff;color:#1565c0}
+.fabs{position:absolute;right:14px;bottom:calc(24px + env(safe-area-inset-bottom,0px));z-index:1000;display:flex;flex-direction:column;gap:12px}
+.fab{width:52px;height:52px;border-radius:50%;border:0;background:#fff;color:#1565c0;font-size:24px;box-shadow:0 2px 8px #0006}
+#chip{position:fixed;z-index:1999;left:10px;top:calc(66px + env(safe-area-inset-top,0px));background:#fffe;border-radius:14px;padding:3px 10px;font-size:12px;box-shadow:0 1px 4px #0004}
+#scrim{position:fixed;inset:0;z-index:2100;background:#0008}
+#drawer{position:fixed;top:0;bottom:0;left:0;width:280px;max-width:84vw;z-index:2101;background:#fff;box-shadow:2px 0 10px #0006;overflow:auto;transform:translateX(-100%);transition:transform .2s}#drawer.o{transform:none}
+#drawer header{background:#1565c0;color:#fff;padding:calc(22px + env(safe-area-inset-top,0px)) 16px 16px}#drawer header b{font-size:20px}#drawer header div{opacity:.85;font-size:12px}
+#drawer button{display:block;width:100%;text-align:left;background:none;border:0;padding:14px 18px;font-size:15px;color:#212121}#drawer button:active{background:#e3f2fd}#drawer hr{border:0;border-top:1px solid #e0e0e0;margin:4px 0}
+#sheet{position:fixed;left:0;right:0;bottom:0;max-height:62vh;overflow:auto;z-index:2050;background:#fff;border-radius:16px 16px 0 0;box-shadow:0 -2px 10px #0006;padding:8px 12px calc(12px + env(safe-area-inset-bottom,0px))}
+.li{display:flex;align-items:center;gap:8px;padding:8px 2px;border-bottom:1px solid #eee}.li.a{font-weight:700;background:#f2f7ff;padding:8px 4px;margin-top:6px;border-radius:6px}.li small{color:#666}
+.sw{width:18px;height:18px;border-radius:4px;border:1px solid #0003}
+#dlgw{position:fixed;inset:0;z-index:2200;background:#0008;display:flex;align-items:center;justify-content:center;padding:16px}
+#dlg{background:#fff;border-radius:10px;padding:18px;width:100%;max-width:420px;max-height:88vh;overflow:auto;box-shadow:0 8px 30px #0008}#dlg h3{margin:0 0 12px;font-size:18px}
+#dlg label{display:flex;align-items:center;gap:8px;margin:8px 0}#dlg input[type=text],#dlg select,#dlg input[type=number]{flex:1;padding:8px;border:1px solid #bbb;border-radius:6px;font-size:15px;min-width:0}
+#dlg input[type=color]{width:44px;height:30px;padding:0;border:0;background:none}
+.act{display:flex;justify-content:flex-end;gap:8px;margin-top:14px;flex-wrap:wrap}.act button,.tb{background:none;border:0;color:#1565c0;font-weight:700;padding:8px 12px;text-transform:uppercase;font-size:13px}.act .pr{background:#1565c0;color:#fff;border-radius:6px}.tb{padding:4px 8px;font-size:12px}
+#toast{position:fixed;left:50%;bottom:calc(90px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:2300;background:#323232;color:#fff;padding:10px 16px;border-radius:6px;max-width:88vw;text-align:center}
+#top{position:fixed;top:calc(56px + env(safe-area-inset-top,0px));left:0;right:0;z-index:5;padding:4px 10px;font-size:12px;background:#0008;color:#fff;text-align:center}#dbg{font-size:11px;opacity:.8}
+#mm{position:fixed;left:10px;top:calc(104px + env(safe-area-inset-top,0px));width:110px;height:110px;border-radius:50%;background:#0008;border:1px solid #fff5;z-index:5}
+#warn{position:fixed;left:10px;right:10px;top:calc(226px + env(safe-area-inset-top,0px));z-index:5;background:#b45309e6;color:#fff;padding:8px 12px;border-radius:8px;font-size:13px}
+#arc{position:fixed;left:0;right:0;bottom:0;z-index:5;padding:8px 10px calc(10px + env(safe-area-inset-bottom,0px));display:flex;justify-content:space-between;align-items:flex-end;pointer-events:none}#arc>*{pointer-events:auto}
+.pad{display:grid;grid-template-columns:repeat(3,46px);grid-template-rows:repeat(2,40px);gap:5px}.pad button:nth-child(1){grid-column:2}
+#arc button{background:#0f172acc;color:#fff;border:1px solid #fff4;border-radius:10px;padding:8px 12px;font-size:14px}.side{display:flex;flex-direction:column;gap:6px;align-items:flex-end}
+#set{position:fixed;left:10px;right:10px;bottom:calc(150px + env(safe-area-inset-bottom,0px));z-index:2060;background:#fff;border-radius:12px;padding:12px;box-shadow:0 4px 18px #0007}#set label{display:flex;align-items:center;gap:8px;margin:7px 0}#set input[type=range]{flex:1}#set b{min-width:30px;text-align:right}
+#st{position:fixed;inset:0;z-index:2150;background:#0009;display:flex;align-items:center;justify-content:center;padding:16px}#stc0{background:#fff;border-radius:10px;padding:18px;max-width:420px;width:100%}#stc0 h3{margin:0 0 8px}#stc0 p{margin:0 0 12px;color:#444}#stc0 button{display:block;width:100%;margin:6px 0;padding:12px;border-radius:6px;border:1px solid #1565c0;background:#fff;color:#1565c0;font-weight:700;text-transform:uppercase}#stc0 #go{background:#1565c0;color:#fff}
+.lb{color:#111;font:11px Roboto,Arial,sans-serif;text-shadow:0 0 3px #fff,0 0 3px #fff;white-space:nowrap}
 </style></head><body>
 <video id="v" playsinline muted autoplay></video><canvas id="c"></canvas>
-<div id="top"><span id="info">…</span><div id="dbg" style="font-size:11px;opacity:.85;direction:ltr"></div></div>
-<canvas id="mm" width="220" height="220"></canvas>
-<div id="warn" hidden></div>
+<div id="mapw"><div id="map"></div><div class="fabs"><button class="fab" id="fx" title="Zoom to project">⤢</button><button class="fab" id="fl2" title="My location">◎</button></div></div>
+<header id="bar"><button class="ib" id="mnu">☰</button><div id="ttl"><b id="pn">Project</b><small id="ar2"></small></div><div id="seg"><button id="vm" class="on">MAP</button><button id="va">AR</button></div></header>
+<div id="chip">GPS: waiting…</div>
+<div id="top" hidden><span id="info">…</span><div id="dbg"></div></div><canvas id="mm" width="220" height="220" hidden></canvas><div id="warn" hidden></div>
+<div id="arc" hidden><div class="pad"><button data-m="f">▲</button><button data-m="l">◀</button><button data-m="b">▼</button><button data-m="r">▶</button></div>
+<div class="side"><button id="an">Snap to nearest point</button><button id="cm">Restart camera</button><button id="rs">Reset position</button><button id="gr">⚙ AR settings</button></div></div>
 <div id="set" hidden>
-<label>تغییر عمق همه‌ی لایه‌ها (متر) <input id="dp" type="range" min="-1" max="2" step="0.1" value="0"><b id="dpv">0</b></label>
-<label>ارتفاع چشم از زمین <input id="ey" type="range" min="1" max="2" step="0.05" value="1.5"><b id="eyv">1.5</b></label>
-<label>زاویه دید دوربین <input id="fv" type="range" min="50" max="90" step="1" value="66"><b id="fvv">66</b></label>
-<label>گام جابه‌جایی (متر) <input id="sp" type="range" min="0.5" max="10" step="0.5" value="2"><b id="spv">2</b></label><label><span><input type="checkbox" id="ud"> نمایش در عمق واقعی (زیر زمین)</span></label><label>تصحیح شیب دوربین (درجه) <input id="pt" type="range" min="-15" max="15" step="0.5" value="0"><b id="ptv">0</b></label><div class="rw"><button id="an">📍 من روی نزدیک‌ترین نقطه‌ی نقشه ایستاده‌ام</button></div>
-<small>دکمه‌های جهت‌دار، موقعیت شما را نسبت به جهت دوربین جابه‌جا می‌کنند (کالیبراسیون یا حرکت در حالت شبیه‌سازی).</small>
-</div>
-<div id="ctl">
-<div class="pad"><button data-m="f">▲</button><button data-m="l">◀</button><button data-m="b">▼</button><button data-m="r">▶</button></div>
-<div class="side" style="direction:rtl"><button id="cm">راه‌اندازی دوباره‌ی دوربین</button><button id="rs">بازنشانی موقعیت</button><button id="a2pl">🗺 پلان نقشه</button><button id="ly">🗂 پروژه‌ها و لایه‌ها</button><button id="gr">⚙ تنظیمات</button></div>
-</div>
-<div id="mapw" hidden><div id="map"></div><div id="mbar"><button id="m2ar">📷 AR</button><button id="m2mg">🗂 پروژه‌ها و لایه‌ها</button></div></div><div id="mg" hidden></div><div id="dlg" hidden></div><input id="fl" type="file" accept=".geojson,.json,.kml,.zip,.dxf,.gpkg,.tif,.tiff" hidden><input id="fb" type="file" accept=".json" hidden>
-<div id="st">
-<h1>AR-Links</h1>
-<p>لایه‌های زیرزمینی (آب، گاز، برق، مخابرات، فاضلاب) روی تصویر دوربین و در مختصات واقعی نمایش داده می‌شوند. محدوده‌ها و لایه‌ها را از دکمه‌ی «محدوده‌ها و لایه‌ها» تعریف کنید.</p>
-<button id="go">شروع AR با GPS</button>
-<button id="sim" class="s">شبیه‌سازی در محل پروژه (بدون GPS)</button><button id="plo" class="s">فقط پلان نقشه (بدون AR)</button>
-<small>مختصات: UTM بر پایه‌ی WGS84. دقت GPS گوشی معمولاً ۳ تا ۱۰ متر است.</small>
-</div>
+<label>Depth offset (m) <input id="dp" type="range" min="-1" max="2" step="0.1" value="0"><b id="dpv">0</b></label>
+<label>Eye height (m) <input id="ey" type="range" min="1" max="2" step="0.05" value="1.5"><b id="eyv">1.5</b></label>
+<label>Camera field of view <input id="fv" type="range" min="50" max="90" step="1" value="66"><b id="fvv">66</b></label>
+<label>Tilt trim (°) <input id="pt" type="range" min="-15" max="15" step="0.5" value="0"><b id="ptv">0</b></label>
+<label>Move step (m) <input id="sp" type="range" min="0.5" max="10" step="0.5" value="2"><b id="spv">2</b></label>
+<label><input type="checkbox" id="ud"> Show at real depth (underground)</label></div>
+<div id="scrim" hidden></div>
+<nav id="drawer"><header><b>AR-Links</b><div>Underground utilities in AR and on the map</div></header>
+<button data-go="proj" id="pt0">Projects</button><button data-go="lay">Layers</button><button data-go="imp">Import layer</button><hr><button data-go="bak">Backup (JSON)</button><button data-go="res">Restore backup</button><hr><button data-go="help">Help</button></nav>
+<div id="sheet" hidden></div><div id="dlgw" hidden><div id="dlg"></div></div><div id="toast" hidden></div>
+<div id="st" hidden><div id="stc0"><h3>Start AR</h3><p>The camera, location and motion sensors are used to overlay your layers on the real world.</p><button id="go">Start AR with GPS</button><button id="sim">Simulate at project (no GPS)</button><button id="stc">Cancel</button></div></div>
+<input id="fl" type="file" accept=".geojson,.json,.kml,.zip" hidden><input id="fb" type="file" accept=".json" hidden>
 <script>
 
 const $=id=>document.getElementById(id),v=$('v'),cv=$('c'),ctx=cv.getContext('2d'),mm=$('mm'),mx=mm.getContext('2d');
-const S={sim:0,off:[0,0],a:0,b:90,g:0,yf:0,abs:0,cmp:null,ok:0,depth:0,under:0,pt:0,plan:0,started:0,sa:0,eye:1.5,fov:66,step:2,P:null,acc:0,zn:0,nocam:0};
-let MAP,GL,UM,W,H,DB={projects:[{id:'p1',n:'پروژه‌ی ۱',areas:[]}],cur:0},REF=[0,0],C=[0,0],TY={};const D={pl:[],tx:[],mh:[]};
+const S={sim:0,off:[0,0],a:0,b:90,g:0,yf:0,abs:0,cmp:null,ok:0,depth:0,under:0,pt:0,plan:1,started:0,sa:0,eye:1.5,fov:66,step:2,P:null,acc:0,zn:0,nocam:0};
+let MAP,GL,UM,W,H,DB={projects:[{id:'p1',n:'Project 1',areas:[]}],cur:0},REF=[0,0],C=[0,0],TY={};const D={pl:[],tx:[],mh:[]};
 function rs(){const d=devicePixelRatio||1;W=innerWidth;H=innerHeight;cv.width=W*d;cv.height=H*d;ctx.setTransform(d,0,0,d,0,0)}
 addEventListener('resize',rs);rs();
 const esc=s=>String(s).replace(/[&<>"']/g,c=>'&#'+c.charCodeAt(0)+';');
 const xy=(lo,la)=>[(lo-REF[0])*111320*Math.cos(REF[1]*Math.PI/180),(la-REF[1])*110574];
 const idb=()=>new Promise((r,j)=>{const q=indexedDB.open('arl',1);q.onupgradeneeded=()=>q.result.createObjectStore('k');q.onsuccess=()=>r(q.result);q.onerror=()=>j(q.error)});
-function wire(){if(!DB.projects)DB={projects:[{id:'p1',n:'پروژه‌ی ۱',areas:DB.areas||[]}],cur:0};if(!DB.projects.length)DB.projects.push({id:'p'+Date.now().toString(36),n:'پروژه‌ی ۱',areas:[]});if(!(DB.cur>=0&&DB.cur<DB.projects.length))DB.cur=0;Object.defineProperty(DB,'areas',{get(){return DB.projects[DB.cur].areas},enumerable:false,configurable:true})}wire();
+function wire(){if(!DB.projects)DB={projects:[{id:'p1',n:'Project 1',areas:DB.areas||[]}],cur:0};if(!DB.projects.length)DB.projects.push({id:'p'+Date.now().toString(36),n:'Project 1',areas:[]});if(!(DB.cur>=0&&DB.cur<DB.projects.length))DB.cur=0;Object.defineProperty(DB,'areas',{get(){return DB.projects[DB.cur].areas},enumerable:false,configurable:true})}wire();
 async function load(){try{const d=await idb();DB=await new Promise(r=>{const q=d.transaction('k').objectStore('k').get('db');q.onsuccess=()=>r(q.result||{areas:[]});q.onerror=()=>r({areas:[]})});wire()}catch(e){}}
 async function save(){try{const d=await idb();d.transaction('k','readwrite').objectStore('k').put(DB,'db')}catch(e){}}
 function setArea(i){S.sa=i;const a=DB.areas[i];REF=a&&a.L.length?a.c.slice():[0,0];C=[0,0];rebuild();if(S.ll)S.P=xy(S.ll[0],S.ll[1])}
@@ -72,7 +77,8 @@ function rebuild(){TY={};D.pl=[];D.tx=[];D.mh=[];DB.areas.forEach(a=>{if(!a.on)r
  g.p.forEach(m=>{const q=xy(m[0],m[1]);D.mh.push([q[0],q[1],l.id])})})});S.cnt=D.pl.length+D.tx.length+D.mh.length}
 function onGps(p){const lo=p.coords.longitude,la=p.coords.latitude;S.acc=p.coords.accuracy;S.ll=[lo,la];let bi=-1,bd=1e18;
  DB.areas.forEach((a,i)=>{if(!a.on||!a.L.length)return;const q=Math.hypot((lo-a.c[0])*Math.cos(la*Math.PI/180),la-a.c[1]);if(q<bd){bd=q;bi=i}});
- if(bi>=0&&bi!==S.sa)setArea(bi);const n=xy(lo,la);S.P=S.P&&Math.hypot(n[0]-S.P[0],n[1]-S.P[1])<30?[S.P[0]+(n[0]-S.P[0])*.35,S.P[1]+(n[1]-S.P[1])*.35]:n;if(MAP)planUser()}
+ if(bi>=0&&bi!==S.sa)setArea(bi);const n=xy(lo,la);S.P=S.P&&Math.hypot(n[0]-S.P[0],n[1]-S.P[1])<30?[S.P[0]+(n[0]-S.P[0])*.35,S.P[1]+(n[1]-S.P[1])*.35]:n;
+ $('chip').textContent='GPS ±'+S.acc.toFixed(0)+' m';if(MAP)planUser()}
 function getP(){if(S.sim)return[C[0]+S.off[0],C[1]+S.off[1]];return S.P?[S.P[0]+S.off[0],S.P[1]+S.off[1]]:null}
 function mat(yf){const r=Math.PI/180,al=(S.a-yf)*r,be=(S.b+S.pt)*r,ga=S.g*r,cA=Math.cos(al),sA=Math.sin(al),cB=Math.cos(be),sB=Math.sin(be),cG=Math.cos(ga),sG=Math.sin(ga);
  return[[cA*cG-sA*sB*sG,-cB*sA,cG*sA*sB+cA*sG],[cG*sA+cA*sB*sG,cA*cB,sA*sG-cA*cG*sB],[-cB*sG,sB,cB*cG]]}
@@ -88,7 +94,7 @@ function draw(){
  ctx.clearRect(0,0,W,H);mx.clearRect(0,0,220,220);
  const M=mat(S.yf),hd=head(M),P=getP(),an=(screen.orientation?screen.orientation.angle:window.orientation)||0;
  $('dbg').textContent=(S.err||'ok')+' | video '+v.videoWidth+'x'+v.videoHeight+' rs'+v.readyState;if(S.nocam&&!v.srcObject){const g=ctx.createLinearGradient(0,0,0,H);g.addColorStop(0,'#1e293b');g.addColorStop(1,'#0b1220');ctx.fillStyle=g;ctx.fillRect(0,0,W,H)}
- if(!P){$('info').textContent='در انتظار GPS…';const w0=$('warn');w0.hidden=0;w0.textContent=S.nocam?'دوربین باز نشد؛ لینک را مستقیم در Safari/Chrome باز کنید و اجازه‌ی دوربین بدهید.':'در انتظار موقعیت GPS هستم. مجوز «مکان» را بدهید (و بیرون از ساختمان باشید)، یا «شبیه‌سازی» را بزنید.';return}
+ if(!P){$('info').textContent='Waiting for GPS…';const w0=$('warn');w0.hidden=0;w0.textContent=S.nocam?'Camera could not start. Open the link directly in Chrome/Safari and allow camera access.':'Waiting for a GPS fix. Allow Location access (and go outside), or tap Simulate.';return}
  const F=Math.max(W,H)/2/Math.tan(S.fov*Math.PI/360),zp=-(S.eye+S.depth),zg=-S.eye,N=.2;
  const pr=(x,y,z)=>{const wx=x-P[0],wy=y-P[1],wz=z,dx=M[0][0]*wx+M[1][0]*wy+M[2][0]*wz,dy=M[0][1]*wx+M[1][1]*wy+M[2][1]*wz,dz=M[0][2]*wx+M[1][2]*wy+M[2][2]*wz;let r=dx,u=dy;
   if(an==90){r=-dy;u=dx}else if(an==270||an==-90){r=dy;u=-dx}else if(an==180){r=-dx;u=-dy}return[r,u,-dz]};
@@ -103,7 +109,7 @@ function draw(){
  D.tx.forEach(t=>txt(t.t,pr(t.x,t.y,zk(t.k)),t.d?'#fbbf24':'#fff',t.d?11:13,!t.d));
  D.mh.forEach(m=>{const g=pr(m[0],m[1],zg),b=pr(m[0],m[1],zk(m[2]));ctx.beginPath();seg(g,b);ctx.strokeStyle='#f472b6';ctx.lineWidth=2;ctx.stroke();
   const ring=[];for(let i=0;i<=24;i++){const t=i/24*6.2832;ring.push(m[0]+.6*Math.cos(t),m[1]+.6*Math.sin(t))}poly(ring,zg,'#f472b6',3);
-  const dd=Math.hypot(m[0]-P[0],m[1]-P[1]);txt((m[2]=='water'?'منهول':TY[m[2]].n)+' · '+dd.toFixed(0)+' m',pr(m[0],m[1],zg+1.2),'#f9a8d4',14,1)});
+  const dd=Math.hypot(m[0]-P[0],m[1]-P[1]);txt(TY[m[2]].n+' · '+dd.toFixed(0)+' m',pr(m[0],m[1],zg+1.2),'#f9a8d4',14,1)});
  // minimap
  const h=hd*Math.PI/180;
  const K=2.2*55/80*1.0;const m2=(x,y)=>{const dx=x-P[0],dy=y-P[1];return[110+K*(dx*Math.cos(h)-dy*Math.sin(h)),110-K*(dx*Math.sin(h)+dy*Math.cos(h))]};
@@ -114,21 +120,21 @@ function draw(){
  if(dc*K>100){const q=m2(C[0],C[1]),a=Math.atan2(q[1]-110,q[0]-110);mx.save();mx.translate(110+90*Math.cos(a),110+90*Math.sin(a));mx.rotate(a);mx.fillStyle='#f87171';mx.beginPath();mx.moveTo(12,0);mx.lineTo(-8,-9);mx.lineTo(-8,9);mx.fill();mx.restore()}
  mx.fillStyle='#fff';mx.beginPath();mx.moveTo(110,98);mx.lineTo(102,118);mx.lineTo(118,118);mx.fill();
  const nd=nearest(P);
- $('info').textContent='جهت '+(hd|0)+'° · '+(S.sim?'شبیه‌سازی':'GPS ±'+S.acc.toFixed(0)+' m')+' · عناصر '+S.cnt+' · نزدیک‌ترین لوله '+(nd<1e8?nd.toFixed(0)+' m':'-');
- const w=$('warn');let msg=DB.areas.some(x=>x.L.length)?'':'ابتدا یک محدوده و لایه اضافه کنید (دکمه‌ی محدوده‌ها و لایه‌ها).';
- if(S.nocam)msg='دوربین باز نشد؛ لینک را مستقیم در Safari/Chrome باز کنید و اجازه‌ی دوربین بدهید. فعلاً پس‌زمینه‌ی تیره نمایش داده می‌شود.';else if(dc>400)msg='مرکز پروژه '+(dc>1000?(dc/1000).toFixed(1)+' km':dc.toFixed(0)+' m')+' از شما فاصله دارد (پیکان قرمز در نقشه‌ی کوچک). اگر در محل نیستید، «شبیه‌سازی» را امتحان کنید؛ اگر در محل هستید، محدوده‌ی انتخاب‌شده را در «محدوده‌ها و لایه‌ها» بررسی کنید.';
- else if(S.nocam)msg='دوربین در دسترس نیست؛ لینک را مستقیم در مرورگر (Safari/Chrome) باز کنید و اجازه‌ی دوربین بدهید.';
- else if(S.ok&&!S.abs&&S.cmp==null&&!S.sim&&!S.warned)msg='قطب‌نمای مطلق در این دستگاه موجود نیست؛ جهت‌ها ممکن است نادرست باشند.';
+ $('info').textContent='Heading '+(hd|0)+'° · '+(S.sim?'Simulated':'GPS ±'+S.acc.toFixed(0)+' m')+' · Items '+S.cnt+' · Nearest line '+(nd<1e8?nd.toFixed(0)+' m':'-');
+ const w=$('warn');let msg=DB.areas.some(x=>x.L.length)?'':'Add an area and import a layer first (menu ☰ → Import layer).';
+ if(S.nocam)msg='Camera could not start. Open the link directly in Chrome/Safari and allow camera access. Showing a dark background for now.';else if(dc>400)msg='Project center is '+(dc>1000?(dc/1000).toFixed(1)+' km':dc.toFixed(0)+' m')+'Simulated';
+ else if(S.nocam)msg='Camera unavailable. Open the link directly in your browser and allow camera access.';
+ else if(S.ok&&!S.abs&&S.cmp==null&&!S.sim&&!S.warned)msg='Absolute compass not available on this device; directions may be wrong.';
  w.hidden=!msg;w.textContent=msg}
 function loop(){if(!S.plan)draw();requestAnimationFrame(loop)}
 async function cam(){S.nocam=0;S.err='';if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){S.nocam=1;S.err='getUserMedia unavailable (iframe or non-HTTPS)';return}let s=null;for(const c of[{video:{facingMode:{ideal:'environment'}},audio:false},{video:true,audio:false}]){try{s=await navigator.mediaDevices.getUserMedia(c);break}catch(e){S.err=e.name+': '+e.message}}if(!s){S.nocam=1;return}S.err='';v.srcObject=s;try{await v.play()}catch(e){S.err='play: '+e.name}}
 async function start(sim){S.started=1;S.sim=sim;$('st').hidden=true;
  try{if(window.DeviceOrientationEvent&&DeviceOrientationEvent.requestPermission)await DeviceOrientationEvent.requestPermission()}catch(e){}
  addEventListener('deviceorientationabsolute',onOri,true);addEventListener('deviceorientation',onOri,true);
- if(!sim&&navigator.geolocation)navigator.geolocation.watchPosition(onGps,()=>{$('warn').hidden=0;$('warn').textContent='دسترسی به موقعیت مکانی رد شد.'},{enableHighAccuracy:true,maximumAge:0,timeout:20000});
+ if(!sim&&navigator.geolocation&&!S.gw)navigator.geolocation.watchPosition(onGps,()=>{$('warn').hidden=0;$('warn').textContent='Location permission denied.'},{enableHighAccuracy:true,maximumAge:0,timeout:20000});
  requestAnimationFrame(loop);
  cam();
- setTimeout(()=>{if(!S.ok){S.drag=1;$('warn').textContent='حسگر جهت یافت نشد؛ با کشیدن انگشت/ماوس به اطراف نگاه کنید.'}},2500)}
+ setTimeout(()=>{if(!S.ok){S.drag=1;$('warn').textContent='Heading '}},2500)}
 $('go').onclick=()=>start(0);$('sim').onclick=()=>start(1);
 let dg=null;cv.onpointerdown=e=>dg=e;cv.onpointermove=e=>{if(!S.drag||!dg||!e.buttons&&e.pointerType==='mouse')return;S.a=(S.a-(e.clientX-dg.clientX)*.3+360)%360;S.b=Math.max(10,Math.min(170,S.b-(e.clientY-dg.clientY)*.2));dg=e};cv.onpointerup=()=>dg=null;
 document.querySelectorAll('[data-m]').forEach(b=>b.onclick=()=>{const h=head(mat(S.yf))*Math.PI/180,f=[Math.sin(h),Math.cos(h)],r=[Math.cos(h),-Math.sin(h)],m=b.dataset.m,s=S.step*(m=='f'||m=='r'?1:-1),d=m=='f'||m=='b'?f:r;S.off[0]+=d[0]*s;S.off[1]+=d[1]*s});
@@ -136,99 +142,81 @@ $('rs').onclick=()=>S.off=[0,0];$('cm').onclick=cam;$('gr').onclick=()=>$('set')
 [['dp','depth','dpv'],['ey','eye','eyv'],['fv','fov','fvv'],['sp','step','spv']].forEach(([i,k,o])=>$(i).oninput=e=>{S[k]=+e.target.value;$(o).textContent=e.target.value});
 
 function fixC(a){let b=null;a.L.forEach(l=>{b=b?[Math.min(b[0],l.b[0]),Math.min(b[1],l.b[1]),Math.max(b[2],l.b[2]),Math.max(b[3],l.b[3])]:l.b.slice()});a.c=b?[(b[0]+b[2])/2,(b[1]+b[3])/2]:[0,0]}
-function bbox(o){let b=[1e9,1e9,-1e9,-1e9];const u=(x,y)=>{b=[Math.min(b[0],x),Math.min(b[1],y),Math.max(b[2],x),Math.max(b[3],y)]};o.l.forEach(a=>{for(let i=0;i<a.length;i+=2)u(a[i],a[i+1])});o.p.forEach(p=>u(p[0],p[1]));return b}
-function feats(gj,out){const rr=x=>Math.round(x*1e6)/1e6;const ln=c=>{const a=[];c.forEach(q=>a.push(rr(q[0]),rr(q[1])));if(a.length>3)out.l.push(a)};
- const g=(G,pr)=>{if(!G)return;const c=G.coordinates;switch(G.type){case'Point':out.p.push([rr(c[0]),rr(c[1])]);{const nm=pr&&(pr.name||pr.Name||pr.NAME);if(nm)out.t.push({t:String(nm).slice(0,30),x:rr(c[0]),y:rr(c[1])})}break;
+function bbox(o){let b=[1e9,1e9,-1e9,-1e9];const u=(x,y)=>{b=[Math.min(b[0],x),Math.min(b[1],y),Math.max(b[2],x),Math.max(b[3],y)]};o.l.forEach(a=>{for(let i=0;i<a.length;i+=2)u(a[i],a[i+1])});o.p.forEach(p=>u(p[0],p[1]));o.t.forEach(t=>u(t.x,t.y));return b}
+function feats(gj,out){const rr=x=>Math.round(x*1e6)/1e6,ln=c=>{const a=[];c.forEach(q=>a.push(rr(q[0]),rr(q[1])));if(a.length>3)out.l.push(a)};
+ const g=(G,pr)=>{if(!G)return;const c=G.coordinates;switch(G.type){case'Point':{const lb=pr&&pr.label,nm=pr&&(pr.name||pr.Name||pr.NAME);if(!lb)out.p.push([rr(c[0]),rr(c[1])]);if(lb||nm)out.t.push({t:String(lb||nm).slice(0,30),x:rr(c[0]),y:rr(c[1])});break}
   case'MultiPoint':c.forEach(q=>g({type:'Point',coordinates:q},pr));break;case'LineString':ln(c);break;case'MultiLineString':c.forEach(ln);break;case'Polygon':c.forEach(ln);break;case'MultiPolygon':c.forEach(p=>p.forEach(ln));break;case'GeometryCollection':G.geometries.forEach(x=>g(x,pr))}};
  (Array.isArray(gj)?gj:[gj]).forEach(j=>{const f=j.type==='FeatureCollection'?j.features:j.type==='Feature'?[j]:[{geometry:j,properties:{}}];f.forEach(x=>g(x.geometry,x.properties))})}
-function anchor(){const raw=S.sim?[0,0]:S.P;if(!raw){alert('موقعیت GPS هنوز آماده نیست');return}let b=null,bd=1e18;const t=(x,y)=>{const d=Math.hypot(x-raw[0],y-raw[1]);if(d<bd){bd=d;b=[x,y]}};D.mh.forEach(m=>t(m[0],m[1]));if(!b)D.pl.forEach(l=>{for(let i=0;i<l.p.length;i+=2)t(l.p[i],l.p[i+1])});if(!b){alert('عنصری برای قفل‌کردن نیست');return}S.off=[b[0]-raw[0],b[1]-raw[1]];alert('موقعیت شما روی نزدیک‌ترین نقطه قفل شد (فاصله‌ی قبلی حدود '+bd.toFixed(0)+' متر)')}
-function initMap(){MAP=L.map('map').setView([32,53],5);L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap'}).addTo(MAP);GL=L.layerGroup().addTo(MAP);MAP.on('zoomend',drawPlan)}
+// ---- UI helpers
+const toast=t=>{const e=$('toast');e.textContent=t;e.hidden=0;clearTimeout(toast.t);toast.t=setTimeout(()=>e.hidden=1,3000)};
+const dlgShow=h=>{$('dlg').innerHTML=h;$('dlgw').hidden=0},dlgClose=()=>{$('dlgw').hidden=1;$('dlg').innerHTML=''};
+const ask=(t,val,cb)=>{dlgShow(`<h3>${t}</h3><label><input type=text id=ai value='${esc(val||'')}'></label><div class=act><button id=ac>Cancel</button><button class=pr id=ao>OK</button></div>`);$('ac').onclick=dlgClose;$('ao').onclick=()=>{const x=$('ai').value.trim();dlgClose();if(x)cb(x)}};
+function refresh(){const p=DB.projects[DB.cur];$('pn').textContent=p.n;$('ar2').textContent=p.areas.length+' area(s) · '+p.areas.reduce((s,a)=>s+a.L.length,0)+' layer(s)'}
+function view(m){S.plan=m==='map'?1:0;$('mapw').hidden=!S.plan;['top','mm','arc'].forEach(i=>$(i).hidden=!!S.plan);$('set').hidden=1;$('warn').hidden=1;$('vm').classList.toggle('on',!!S.plan);$('va').classList.toggle('on',!S.plan);$('chip').hidden=!S.plan;$('st').hidden=!(!S.plan&&!S.started);if(S.plan&&MAP)setTimeout(()=>MAP.invalidateSize(),60)}
+// ---- map (plan) view
+function needL(){return new Promise(res=>{if(window.L)return res();const l=document.createElement('link');l.rel='stylesheet';l.href='https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css';document.head.appendChild(l);const s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js';s.onload=res;s.onerror=res;document.head.appendChild(s)})}
+function initMap(){MAP=L.map('map',{zoomControl:false}).setView([30,50],4);L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap'}).addTo(MAP);L.control.scale({imperial:false}).addTo(MAP);GL=L.layerGroup().addTo(MAP);MAP.on('zoomend',drawPlan)}
 function planUser(){if(!MAP||!S.ll)return;const ll=[S.ll[1],S.ll[0]];if(UM)UM.setLatLng(ll);else UM=L.circleMarker(ll,{radius:8,color:'#fff',weight:3,fillColor:'#2563eb',fillOpacity:1}).addTo(MAP)}
 function drawPlan(){if(!MAP)return;GL.clearLayers();const bs=[],z=MAP.getZoom();
  DB.areas.forEach(a=>{if(!a.on)return;a.L.forEach(l=>{if(!l.on)return;const g=l.g;
   g.l.forEach(p=>{const q=[];for(let i=0;i<p.length;i+=2)q.push([p[i+1],p[i]]);L.polyline(q,{color:l.c,weight:l.w||4}).bindTooltip(esc(a.n)+' · '+esc(l.n)).addTo(GL);bs.push(...q)});
-  g.p.forEach(m=>{L.circleMarker([m[1],m[0]],{radius:5,color:'#f472b6',weight:2,fillOpacity:.7}).bindTooltip(esc(l.n)).addTo(GL);bs.push([m[1],m[0]])});
-  if(z>=18)g.t.forEach(t=>L.marker([t.y,t.x],{icon:L.divIcon({className:'lb',html:esc(t.t)}),interactive:false}).addTo(GL))})});
- if(bs.length&&!S.fit){S.fit=1;MAP.fitBounds(bs,{maxZoom:19,padding:[30,30]})}planUser()}
-function needL(){return new Promise(res=>{if(window.L)return res();const l=document.createElement('link');l.rel='stylesheet';l.href='https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css';document.head.appendChild(l);const s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js';s.onload=res;s.onerror=res;document.head.appendChild(s)})}
-async function showPlan(){S.plan=1;$('st').hidden=true;$('mapw').hidden=0;['top','mm','warn','ctl','set','mg'].forEach(i=>$(i).hidden=1);
- await needL();try{if(!window.L)throw new Error('کتابخانه‌ی نقشه بارگذاری نشد. پوشه‌ی lib را کامل در GitHub بارگذاری کنید (یا اینترنت را بررسی کنید).');if(!MAP)initMap();MAP.invalidateSize();drawPlan()}catch(e){alert('نقشه بارگذاری نشد: '+e.message)}
- if(!S.gw&&!S.started&&navigator.geolocation){S.gw=1;navigator.geolocation.watchPosition(onGps,()=>{},{enableHighAccuracy:true})}}
-function showAR(){S.plan=0;$('mapw').hidden=1;['top','mm','ctl'].forEach(i=>$(i).hidden=0);if(!S.started)$('st').hidden=0}
-function mg(){const m=$('mg');m.hidden=0;$('dlg').hidden=1;$('set').hidden=1;
- m.innerHTML='<div class=rw><b style="flex:1">پروژه‌ها، محدوده‌ها و لایه‌ها</b><button id=mc>بستن</button></div>'+
- `<div class=rw>پروژه <select id=pj>${DB.projects.map((p,i)=>`<option value=${i} ${i==DB.cur?'selected':''}>${esc(p.n)}</option>`).join('')}</select><button id=pn>جدید</button><button id=pr>نام</button><button id=px>حذف</button></div><div class=rw><button id=goar>📷 نمای AR</button><button id=gopl>🗺 نمای پلان</button></div>`+
- (DB.areas.length?'':'<p>این پروژه محدوده‌ای ندارد. «محدوده‌ی جدید» را بزنید.</p>')+
- DB.areas.map((a,i)=>`<div class=ar><div class=rw><input type=checkbox data-a=${i} ${a.on?'checked':''}><b style='flex:1'>${esc(a.n)}</b><button data-g=${i}>${i==S.sa?'✓ ':''}مرکز</button><button data-rn=${i}>نام</button><button data-x=${i}>حذف</button></div>`+
- a.L.map((l,j)=>`<div class=rw style='padding-right:16px'><input type=checkbox data-l=${i}_${j} ${l.on?'checked':''}><input type=color data-c=${i}_${j} value=${l.c}><span style='flex:1;min-width:70px'>${esc(l.n)}</span>عمق <input type=number step=.1 min=0 max=10 data-d=${i}_${j} value=${l.d}>ضخامت <input type=number step=1 min=1 max=20 data-w=${i}_${j} value=${l.w||4}><button data-lx=${i}_${j}>حذف</button></div>`).join('')+
- `<div class=rw><button data-ad=${i}>➕ افزودن لایه (فایل)</button></div></div>`).join('')+
- '<div class=rw><button id=na>➕ محدوده‌ی جدید</button><button id=ex>پشتیبان‌گیری</button><button id=im>بازیابی</button></div><small>فرمت‌ها: GeoJSON، KML، SHP (ZIP)، DXF. داده‌ها روی همین گوشی ذخیره می‌شوند.</small>';
- const q=(s,f)=>m.querySelectorAll(s).forEach(f),ij=e=>e.split('_').map(Number),chg=()=>{save();rebuild();drawPlan()},upd=()=>{chg();mg()},LY=e=>{const[i,j]=ij(e);return DB.areas[i].L[j]};
- $('pj').onchange=e=>{DB.cur=+e.target.value;S.fit=0;S.off=[0,0];setArea(0);save();drawPlan();mg()};
- $('pn').onclick=()=>{const n=prompt('نام پروژه');if(n){DB.projects.push({id:'p'+Date.now().toString(36),n,areas:[]});DB.cur=DB.projects.length-1;S.fit=0;setArea(0);save();drawPlan();mg()}};
- $('pr').onclick=()=>{const p=DB.projects[DB.cur],n=prompt('نام پروژه',p.n);if(n){p.n=n;save();mg()}};
- $('px').onclick=()=>{if(DB.projects.length<2){alert('حداقل یک پروژه لازم است');return}if(confirm('پروژه با همه‌ی محدوده‌هایش حذف شود؟')){DB.projects.splice(DB.cur,1);DB.cur=0;S.fit=0;setArea(0);save();drawPlan();mg()}};
- $('goar').onclick=()=>{m.hidden=1;showAR()};$('gopl').onclick=()=>{m.hidden=1;showPlan()};
- q('[data-a]',e=>e.onchange=()=>{DB.areas[+e.dataset.a].on=e.checked;upd()});
- q('[data-l]',e=>e.onchange=()=>{LY(e.dataset.l).on=e.checked;upd()});
- q('[data-c]',e=>e.onchange=()=>{LY(e.dataset.c).c=e.value;chg()});
- q('[data-d]',e=>e.onchange=()=>{LY(e.dataset.d).d=+e.value;chg()});
- q('[data-w]',e=>e.onchange=()=>{LY(e.dataset.w).w=+e.value||4;chg()});
- q('[data-g]',e=>e.onclick=()=>{setArea(+e.dataset.g);S.off=[0,0];mg()});
- q('[data-rn]',e=>e.onclick=()=>{const a=DB.areas[+e.dataset.rn],n=prompt('نام محدوده',a.n);if(n){a.n=n;upd()}});
- q('[data-x]',e=>e.onclick=()=>{if(confirm('محدوده و لایه‌هایش حذف شود؟')){DB.areas.splice(+e.dataset.x,1);save();setArea(0);S.fit=0;drawPlan();mg()}});
- q('[data-lx]',e=>e.onclick=()=>{const[i,j]=ij(e.dataset.lx);DB.areas[i].L.splice(j,1);fixC(DB.areas[i]);save();setArea(S.sa<DB.areas.length?S.sa:0);drawPlan();mg()});
- q('[data-ad]',e=>e.onclick=()=>{S.tgt=+e.dataset.ad;$('fl').click()});
- $('mc').onclick=()=>m.hidden=1;
- $('na').onclick=()=>{const n=prompt('نام محدوده (مثلاً لینک خط سه)');if(n){DB.areas.push({n,on:1,c:[0,0],L:[]});save();mg()}};
- $('ex').onclick=()=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(DB)],{type:'application/json'}));a.download='ar-links-backup.json';a.click()};
- $('im').onclick=()=>$('fb').click()}
-$('fb').onchange=async e=>{const f=e.target.files[0];e.target.value='';if(!f)return;try{const d=JSON.parse(await f.text());if(!d.projects&&!Array.isArray(d.areas))throw 0;DB=d;wire();save();S.fit=0;setArea(0);drawPlan();mg()}catch(x){alert('فایل پشتیبان معتبر نیست')}};
-$('ly').onclick=mg;
-$('fl').onchange=async e=>{const f=e.target.files[0];e.target.value='';if(!f)return;const ext=f.name.split('.').pop().toLowerCase();let gj=null,dx=null,txt='';
- if(['gpkg','tif','tiff'].includes(ext)){alert('این فرمت فعلاً پشتیبانی نمی‌شود. از GeoJSON، KML، SHP (ZIP) یا DXF استفاده کنید.');return}
- try{if(ext==='dxf'){txt=await f.text();dx=new(DxfParser.default||DxfParser)().parseSync(txt)}else if(ext==='zip')gj=await shp(await f.arrayBuffer());
-  else if(ext==='kml')gj=toGeoJSON.kml(new DOMParser().parseFromString(await f.text(),'text/xml'));else gj=JSON.parse(await f.text())}catch(x){alert('خطا در خواندن فایل: '+x.message);return}
- dlg(f,gj,dx,txt)};
-const PRE={'آب':['#22d3ee',1.2],'گاز':['#f97316',1],'برق':['#ef4444',.8],'مخابرات':['#a855f7',.6],'فاضلاب':['#84cc16',2.5],'سایر':['#e5e7eb',1]};
-const GS=[[/gas|گاز/i,'گاز'],[/elec|power|برق/i,'برق'],[/tel|phone|مخابر/i,'مخابرات'],[/sew|waste|فاضلاب/i,'فاضلاب'],[/water|آب/i,'آب']];
-const UT=(z,h)=>proj4(`+proj=utm +zone=${z}${h=='S'?' +south':''} +datum=WGS84 +units=m +no_defs`,'EPSG:4326'),ZL=[];for(let z=1;z<=60;z++)ZL.push(z+'N');for(let z=1;z<=60;z++)ZL.push(z+'S');
-function zmark(t){let m;t=t.slice(0,3e6);if(m=t.match(/EPSG\s*[:=]?\s*32([67])(\d\d)\b/i))return[+m[2],m[1]=='7'?'S':'N'];if(m=t.match(/UTM(?:84)?[\s_-]*(?:ZONE\s*)?(\d{1,2})\s*([NS])\b/i))return[+m[1],m[2].toUpperCase()];return null}
-const getPos=()=>new Promise(r=>{if(!navigator.geolocation)return r(null);navigator.geolocation.getCurrentPosition(p=>r([p.coords.longitude,p.coords.latitude]),()=>r(null),{timeout:4000,maximumAge:3e5})});
-const ll=(c,z,h)=>{try{const r=UT(z,h).forward([c[0],c[1]]);return isFinite(r[0])&&isFinite(r[1])&&Math.abs(r[1])<=84?r:null}catch(e){return null}};
-async function guess(c,txt){
- if(Math.abs(c[0])<=180&&Math.abs(c[1])<=90)return{v:'D',why:'مختصات از نوع درجه (lon/lat) است'};
- if(!(c[0]>=100000&&c[0]<=900000&&c[1]>-2e6&&c[1]<1.1e7))return{v:'L',why:'مختصات محلی و بدون ژئورفرنس به نظر می‌رسد؛ مرکز نقشه روی موقعیت فعلی شما قرار می‌گیرد'};
- const mk=zmark(txt||'');if(mk&&mk[0]>=1&&mk[0]<=60)return{v:mk[0]+mk[1],why:'پهنه از اطلاعات داخل فایل خوانده شد',ok:1};
- const gp=await getPos(),ar=DB.areas.find(a=>a.L.length),h=gp?['موقعیت فعلی شما',gp]:ar?['محدوده‌ی «'+ar.n+'»',ar.c]:null;
- const rank=f=>ZL.map(k=>{const r=ll(c,parseInt(k),k.slice(-1));return r?{k,r,d:f(r)}:null}).filter(Boolean).sort((a,b)=>a.d-b.d);
- let L,why,ok=0;
- if(h){L=rank(r=>Math.hypot((r[0]-h[1][0])*Math.cos(h[1][1]*Math.PI/180),r[1]-h[1][1])*111);why='نزدیک‌ترین پهنه به '+h[0];ok=L[0].d<150}
- else{const lo=-new Date().getTimezoneOffset()/4;L=rank(r=>Math.abs(((r[0]-lo+540)%360)-180)*111+(r[1]<0?1e4:0));why='تخمین بر اساس منطقه‌ی زمانی دستگاه'}
- return{v:L[0].k,alts:L.slice(0,4),why,ok}}
-let zmM,zmK;const zclose=()=>{if(zmM){zmM.remove();zmM=null}};
-function dlg(f,gj,dx,txt){const d=$('dlg');d.hidden=0;$('mg').hidden=1;zclose();const nm=f.name.replace(/\.[^.]+$/,''),g=(GS.find(x=>x[0].test(nm))||[0,'سایر'])[1],cnt={};let c0=[0,0];
- if(dx){const xs=[],ys=[];dx.entities.forEach(n=>{cnt[n.layer]=(cnt[n.layer]||0)+1;const q=(n.vertices&&n.vertices[0])||n.position||n.startPoint;if(q&&xs.length<800){xs.push(q.x);ys.push(q.y)}});const md=a=>a.sort((x,y)=>x-y)[a.length>>1]||0;c0=[md(xs),md(ys)]}
- d.innerHTML=`<b>لایه‌ی جدید از «${esc(f.name)}»</b><div class=rw>نام <input id=dn value='${esc(nm)}' style='flex:1'></div><div class=rw>نوع <select id=dt>${Object.keys(PRE).map(k=>`<option ${k==g?'selected':''}>${k}</option>`).join('')}</select> رنگ <input id=dc type=color value=${PRE[g][0]}> عمق <input id=dd type=number step=.1 value=${PRE[g][1]}></div>`+
- (dx?`<div class=rw>سیستم مختصات <select id=zn2><option value=''>در حال تشخیص…</option><option value=D>درجه (lon/lat)</option><option value=L>محلی (روی موقعیت فعلی من)</option>${ZL.map(k=>`<option value=${k}>UTM ${k}</option>`).join('')}</select></div><div id=zw style='font-size:12px'></div><div id=zp style='font-size:12px;opacity:.85'></div><div id=zc class=rw></div><div id=zmap style='height:150px;border-radius:8px;margin:6px 0'></div><div>لایه‌های DXF:</div>`+Object.keys(cnt).map(l=>`<div class=rw><input type=checkbox data-dl='${esc(l)}' checked><span style='direction:ltr'>${esc(l)} (${cnt[l]})</span></div>`).join(''):'<small>GeoJSON/KML در WGS84 فرض می‌شوند؛ SHP از فایل prj تبدیل می‌شود.</small>')+'<div class=rw><button id=dok>افزودن</button><button id=dno>انصراف</button></div>';
- $('dt').onchange=()=>{const p=PRE[$('dt').value];$('dc').value=p[0];$('dd').value=p[1]};$('dno').onclick=()=>{zclose();d.hidden=1;mg()};
- if(dx){const pv=()=>{const v=$('zn2').value;let r=null;if(v==='D')r=c0;else if(v&&v!=='L')r=ll(c0,parseInt(v),v.slice(-1));$('zp').textContent=r?'مرکز داده: '+r[1].toFixed(3)+'°N , '+r[0].toFixed(3)+'°E':'';if(zmM&&r){zmM.setView([r[1],r[0]],8);zmK.setLatLng([r[1],r[0]])}};
-  $('zn2').onchange=pv;
-  needL().then(()=>{if(!window.L||d.hidden)return;zmM=L.map('zmap',{zoomControl:false}).setView([30,50],3);L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OSM'}).addTo(zmM);zmK=L.circleMarker([0,0],{radius:8,color:'#f43f5e',fillOpacity:.8}).addTo(zmM);zmM.invalidateSize();pv()});
-  guess(c0,txt).then(g=>{if(d.hidden)return;$('zn2').value=g.v;$('zw').textContent=g.why+(g.ok?' ✓':(g.alts?' — روی نقشه‌ی زیر بررسی کنید یا گزینه‌ی دیگری بزنید':''));
-   $('zc').innerHTML=(g.alts||[]).map(a=>`<button data-zk=${a.k}>${a.k} (${a.r[1].toFixed(1)}, ${a.r[0].toFixed(1)})</button>`).join('');
-   $('zc').querySelectorAll('[data-zk]').forEach(b=>b.onclick=()=>{$('zn2').value=b.dataset.zk;pv()});pv()})}
- $('dok').onclick=async()=>{const out={l:[],p:[],t:[]};
-  try{if(dx){const zs=$('zn2').value,ok=new Set([...d.querySelectorAll('[data-dl]')].filter(c=>c.checked).map(c=>c.dataset.dl)),r=x=>Math.round(x*1e6)/1e6;let cvt;
-    if(!zs){alert('سیستم مختصات هنوز مشخص نشده است');return}
-    if(zs==='D')cvt=(x,y)=>[x,y];else if(zs==='L'){const gp=await getPos();if(!gp){alert('برای مختصات محلی باید GPS روشن باشد');return}const k=111320*Math.cos(gp[1]*Math.PI/180);cvt=(x,y)=>[gp[0]+(x-c0[0])/k,gp[1]+(y-c0[1])/110574]}else{const t=UT(parseInt(zs),zs.slice(-1));cvt=(x,y)=>t.forward([x,y])}
-    dx.entities.forEach(n=>{if(!ok.has(n.layer))return;
-     if(['LWPOLYLINE','POLYLINE','LINE'].includes(n.type)&&n.vertices&&n.vertices.length>1){const a=[];n.vertices.forEach(w=>{const q=cvt(w.x,w.y);a.push(r(q[0]),r(q[1]))});out.l.push(a)}
-     else if(n.type==='INSERT'&&n.position){const q=cvt(n.position.x,n.position.y);out.p.push([r(q[0]),r(q[1])])}
-     else if((n.type==='TEXT'||n.type==='MTEXT')&&n.text){const s=n.startPoint||n.position;if(s){const q=cvt(s.x,s.y);out.t.push({t:String(n.text).slice(0,30),x:r(q[0]),y:r(q[1])})}}})}else feats(gj,out)}catch(x){alert('خطا: '+x.message);return}
-  if(!out.l.length&&!out.p.length){alert('هیچ هندسه‌ای پیدا نشد');return}
-  const b=bbox(out);if(!(Math.abs(b[0])<=180&&Math.abs(b[2])<=180&&Math.abs(b[1])<=90&&Math.abs(b[3])<=90)){alert('مختصات معتبر نیست؛ سیستم مختصات را بررسی کنید');return}
-  const a=DB.areas[S.tgt];a.L.push({id:'l'+Date.now().toString(36),n:$('dn').value||nm,c:$('dc').value,d:+$('dd').value||1,on:1,w:4,g:out,b});fixC(a);save();zclose();d.hidden=1;setArea(S.tgt);S.off=[0,0];S.fit=0;drawPlan();mg()}}
-$('a2pl').onclick=showPlan;$('m2ar').onclick=showAR;$('m2mg').onclick=mg;$('plo').onclick=showPlan;$('an').onclick=anchor;$('ud').onchange=e=>S.under=e.target.checked?1:0;$('pt').oninput=e=>{S.pt=+e.target.value;$('ptv').textContent=e.target.value};
-(async()=>{await load();setArea(0);if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{})})();
+  g.p.forEach(m=>{L.circleMarker([m[1],m[0]],{radius:5,color:l.c,weight:2,fillColor:'#fff',fillOpacity:.9}).bindTooltip(esc(l.n)).addTo(GL);bs.push([m[1],m[0]])});
+  g.t.forEach(t=>bs.push([t.y,t.x]));if(z>=18)g.t.forEach(t=>L.marker([t.y,t.x],{icon:L.divIcon({className:'lb',html:esc(t.t)}),interactive:false}).addTo(GL))})});
+ if(bs.length&&!S.fit){S.fit=1;MAP.fitBounds(bs,{maxZoom:19,padding:[40,40]})}planUser()}
+// ---- AR helpers
+function anchor(){const raw=S.sim?[0,0]:S.P;if(!raw){toast('GPS position not ready yet');return}let b=null,bd=1e18;const t=(x,y)=>{const d=Math.hypot(x-raw[0],y-raw[1]);if(d<bd){bd=d;b=[x,y]}};D.mh.forEach(m=>t(m[0],m[1]));if(!b)D.pl.forEach(l=>{for(let i=0;i<l.p.length;i+=2)t(l.p[i],l.p[i+1])});if(!b){toast('No visible features to snap to');return}S.off=[b[0]-raw[0],b[1]-raw[1]];toast('Position snapped to the nearest point (was '+bd.toFixed(0)+' m away)')}
+// ---- projects / layers / dialogs
+const TYPES={Water:['#039be5',1.2],Gas:['#ff9800',1],Electric:['#f44336',.8],Telecom:['#9c27b0',.6],Sewer:['#8bc34a',2.5],Other:['#607d8b',1]};
+const GS=[[/gas|گاز/i,'Gas'],[/elec|power|برق/i,'Electric'],[/tel|phone|مخابر/i,'Telecom'],[/sew|waste|فاضلاب/i,'Sewer'],[/water|آب/i,'Water']];
+function projects(){dlgShow('<h3>Projects</h3>'+DB.projects.map((p,i)=>`<div class=li><label style='flex:1;margin:0'><input type=radio name=pp data-p=${i} ${i==DB.cur?'checked':''}> ${esc(p.n)} <small>${p.areas.length} area(s)</small></label><button class=tb data-pr=${i}>Rename</button><button class=tb data-px=${i}>Delete</button></div>`).join('')+'<div class=act><button id=pnw>New project</button><button class=pr id=pcl>Close</button></div>');
+ const q=(s,f)=>$('dlg').querySelectorAll(s).forEach(f),sw=()=>{S.fit=0;S.off=[0,0];setArea(0);save();refresh();drawPlan()};
+ q('[data-p]',e=>e.onchange=()=>{DB.cur=+e.dataset.p;sw();projects()});
+ q('[data-pr]',e=>e.onclick=()=>ask('Rename project',DB.projects[+e.dataset.pr].n,n=>{DB.projects[+e.dataset.pr].n=n;save();refresh();projects()}));
+ q('[data-px]',e=>e.onclick=()=>{if(DB.projects.length<2){toast('At least one project is required');return}if(confirm('Delete this project and all its areas?')){DB.projects.splice(+e.dataset.px,1);DB.cur=0;sw();projects()}});
+ $('pnw').onclick=()=>ask('New project name','',n=>{DB.projects.push({id:'p'+Date.now().toString(36),n,areas:[]});DB.cur=DB.projects.length-1;sw();projects()});$('pcl').onclick=dlgClose}
+function sheet(){const s=$('sheet');s.hidden=0;const p=DB.projects[DB.cur];
+ s.innerHTML=`<div class=li><b style='flex:1'>Layers · ${esc(p.n)}</b><button class=tb id=sna>+ Area</button><button class=tb id=sxx>Close</button></div>`+(p.areas.length?'':'<p>No areas yet. Tap “+ Area”, then add layers from files.</p>')+
+ p.areas.map((a,i)=>`<div class='li a'><input type=checkbox data-a=${i} ${a.on?'checked':''}><span style='flex:1'>${esc(a.n)}</span><button class=tb data-ad=${i}>+ Layer</button><button class=tb data-ae=${i}>Edit</button></div>`+a.L.map((l,j)=>`<div class=li data-lp=${i}_${j}><input type=checkbox data-l=${i}_${j} ${l.on?'checked':''}><span class=sw style='background:${l.c}'></span><span style='flex:1'>${esc(l.n)}</span><small>${l.d} m</small></div>`).join('')).join('');
+ const q=(sel,f)=>s.querySelectorAll(sel).forEach(f),ij=e=>e.split('_').map(Number),chg=()=>{save();rebuild();drawPlan();refresh()};
+ $('sxx').onclick=()=>s.hidden=1;$('sna').onclick=()=>ask('New area name','',n=>{DB.areas.push({n,on:1,c:[0,0],L:[]});save();refresh();sheet()});
+ q('[data-a]',e=>e.onchange=()=>{DB.areas[+e.dataset.a].on=e.checked;chg()});
+ q('[data-l]',e=>{e.onclick=ev=>ev.stopPropagation();e.onchange=()=>{const[i,j]=ij(e.dataset.l);DB.areas[i].L[j].on=e.checked;chg()}});
+ q('[data-lp]',e=>e.onclick=()=>{const[i,j]=ij(e.dataset.lp);layerDlg(i,j)});
+ q('[data-ad]',e=>e.onclick=()=>{S.tgt=+e.dataset.ad;$('fl').click()});q('[data-ae]',e=>e.onclick=()=>areaDlg(+e.dataset.ae))}
+function areaDlg(i){const a=DB.areas[i];dlgShow(`<h3>Area</h3><label>Name <input type=text id=an2 value='${esc(a.n)}'></label><div class=act><button id=ax style='color:#c62828'>Delete</button><button id=acn>Cancel</button><button class=pr id=aok>Save</button></div>`);
+ $('acn').onclick=dlgClose;$('aok').onclick=()=>{a.n=$('an2').value||a.n;dlgClose();save();refresh();sheet()};
+ $('ax').onclick=()=>{if(confirm('Delete this area and its layers?')){DB.areas.splice(i,1);dlgClose();save();setArea(0);S.fit=0;drawPlan();refresh();sheet()}}}
+function layerDlg(i,j){const l=DB.areas[i].L[j];dlgShow(`<h3>Layer properties</h3><label>Name <input type=text id=ln value='${esc(l.n)}'></label><label>Color <input type=color id=lc value=${l.c}></label><label>Line width <input type=number id=lw min=1 max=20 value=${l.w||4}></label><label>Depth (m) <input type=number id=ld step=.1 min=0 value=${l.d}></label><div class=act><button id=lx style='color:#c62828'>Delete</button><button id=lz>Zoom to</button><button id=lcn>Cancel</button><button class=pr id=lok>Save</button></div>`);
+ const done=()=>{dlgClose();save();rebuild();drawPlan();refresh();sheet()};$('lcn').onclick=dlgClose;
+ $('lok').onclick=()=>{l.n=$('ln').value||l.n;l.c=$('lc').value;l.w=+$('lw').value||4;l.d=+$('ld').value||0;done()};
+ $('lx').onclick=()=>{if(confirm('Delete this layer?')){DB.areas[i].L.splice(j,1);fixC(DB.areas[i]);setArea(S.sa<DB.areas.length?S.sa:0);done()}};
+ $('lz').onclick=()=>{dlgClose();$('sheet').hidden=1;view('map');if(MAP)MAP.fitBounds([[l.b[1],l.b[0]],[l.b[3],l.b[2]]],{maxZoom:19,padding:[40,40]})}}
+function impStart(){if(!DB.areas.length){toast('Create an area first (Layers → + Area)');sheet();return}S.tgt=S.sa<DB.areas.length?S.sa:0;$('fl').click()}
+$('fl').onchange=async e=>{const f=e.target.files[0];e.target.value='';if(!f)return;const ext=f.name.split('.').pop().toLowerCase();let gj,crs;
+ try{if(ext==='zip'){const buf=await f.arrayBuffer();if(!/\.prj/i.test(new TextDecoder('latin1').decode(new Uint8Array(buf))))throw new Error('This Shapefile ZIP has no .prj file, so its coordinate system is unknown. Add the .prj file and try again.');gj=await shp(buf);crs='read from .prj, converted to WGS 84'}
+  else if(ext==='kml'){gj=toGeoJSON.kml(new DOMParser().parseFromString(await f.text(),'text/xml'));crs='WGS 84 (KML standard)'}
+  else if(ext==='geojson'||ext==='json'){gj=JSON.parse(await f.text());const cn=gj.crs&&gj.crs.properties&&gj.crs.properties.name;if(cn&&!/CRS84|EPSG::?4326|WGS ?84/i.test(cn))throw new Error('This GeoJSON declares another coordinate system ('+cn+'). Only WGS 84 is accepted.');crs='WGS 84 (GeoJSON standard)'}
+  else throw new Error('Unsupported format “.'+ext+'”. Supported: GeoJSON, KML, Shapefile (.zip containing .prj).')}
+ catch(x){dlgShow(`<h3>Cannot import</h3><p>${esc(x.message)}</p><div class=act><button class=pr id=oc>OK</button></div>`);$('oc').onclick=dlgClose;return}
+ const nm=f.name.replace(/\.[^.]+$/,''),g=(GS.find(x=>x[0].test(nm))||[0,'Other'])[1];
+ dlgShow(`<h3>Import layer</h3><label>Name <input type=text id=dn value='${esc(nm)}'></label><label>Area <select id=ia>${DB.areas.map((a,i)=>`<option value=${i} ${i==S.tgt?'selected':''}>${esc(a.n)}</option>`).join('')}</select></label><label>Type <select id=dt>${Object.keys(TYPES).map(k=>`<option ${k==g?'selected':''}>${k}</option>`).join('')}</select></label><label>Color <input id=dc type=color value=${TYPES[g][0]}></label><label>Line width <input type=number id=dw min=1 max=20 value=4></label><label>Depth (m) <input type=number id=dd step=.1 min=0 value=${TYPES[g][1]}></label><p style='font-size:12px;color:#555'>Coordinate system: ${esc(crs)}</p><div class=act><button id=dno>Cancel</button><button class=pr id=dok>Import</button></div>`);
+ $('dt').onchange=()=>{const p=TYPES[$('dt').value];$('dc').value=p[0];$('dd').value=p[1]};$('dno').onclick=dlgClose;
+ $('dok').onclick=()=>{const out={l:[],p:[],t:[]};try{feats(gj,out)}catch(x){toast('Error: '+x.message);return}
+  if(!out.l.length&&!out.p.length&&!out.t.length){toast('No geometry found in the file');return}
+  const b=bbox(out);if(!(Math.abs(b[0])<=180&&Math.abs(b[2])<=180&&Math.abs(b[1])<=90&&Math.abs(b[3])<=90)){toast('Coordinates are not valid WGS 84 — check the file');return}
+  const ai=+$('ia').value,a=DB.areas[ai];a.L.push({id:'l'+Date.now().toString(36),n:$('dn').value||nm,c:$('dc').value,d:+$('dd').value||0,on:1,w:+$('dw').value||4,g:out,b});fixC(a);dlgClose();save();setArea(ai);S.off=[0,0];S.fit=0;drawPlan();refresh();toast('Layer imported');if(!$('sheet').hidden)sheet()}};
+function backup(){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(DB)],{type:'application/json'}));a.download='ar-links-backup.json';a.click()}
+$('fb').onchange=async e=>{const f=e.target.files[0];e.target.value='';if(!f)return;try{const d=JSON.parse(await f.text());if(!d.projects&&!Array.isArray(d.areas))throw 0;DB=d;wire();save();S.fit=0;setArea(0);drawPlan();refresh();toast('Backup restored')}catch(x){toast('Not a valid backup file')}};
+function help(){dlgShow(`<h3>Help</h3><p><b>Supported formats</b><br>GeoJSON (WGS 84), KML (WGS 84) and Shapefile as .zip with its .prj file (any coordinate system, converted automatically).</p><p>Formats that do not state their coordinate system (e.g. DXF) are not supported. Convert them in QGIS first, with the correct CRS set.</p><p><b>AR tips</b><br>GPS is only accurate to a few meters. Stand next to a known point and use “Snap to nearest point”.</p><div class=act><button class=pr id=hc>OK</button></div>`);$('hc').onclick=dlgClose}
+// ---- wiring
+const dr=o=>{$('drawer').classList.toggle('o',!!o);$('scrim').hidden=!o};
+$('mnu').onclick=()=>dr(1);$('scrim').onclick=()=>dr(0);
+document.querySelectorAll('#drawer [data-go]').forEach(b=>b.onclick=()=>{dr(0);({proj:projects,lay:sheet,imp:impStart,bak:backup,res:()=>$('fb').click(),help})[b.dataset.go]()});
+$('pt0').onclick=projects;$('vm').onclick=()=>view('map');$('va').onclick=()=>view('ar');$('stc').onclick=()=>view('map');
+$('fx').onclick=()=>{S.fit=0;drawPlan()};
+$('fl2').onclick=()=>{if(!navigator.geolocation){toast('Location unavailable');return}navigator.geolocation.getCurrentPosition(p=>{onGps(p);if(MAP)MAP.setView([p.coords.latitude,p.coords.longitude],Math.max(MAP.getZoom(),17))},()=>toast('Location unavailable — allow Location access'),{enableHighAccuracy:true,timeout:15000})};
+$('an').onclick=anchor;$('ud').onchange=e=>S.under=e.target.checked?1:0;$('pt').oninput=e=>{S.pt=+e.target.value;$('ptv').textContent=e.target.value};
+(async()=>{await load();setArea(0);refresh();view('map');await needL();try{initMap();drawPlan()}catch(e){toast('Map library failed to load')}
+ if(navigator.geolocation&&!S.gw){S.gw=1;navigator.geolocation.watchPosition(onGps,e=>{$('chip').textContent='GPS: '+(e.code==1?'permission denied':'unavailable')},{enableHighAccuracy:true,maximumAge:2000,timeout:30000})}
+ if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{})})();
 </script></body></html>
