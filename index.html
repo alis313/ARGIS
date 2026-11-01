@@ -3,82 +3,123 @@
 <link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#1565c0"><link rel="apple-touch-icon" href="icon-192.png"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes">
 <link rel="stylesheet" href="lib/leaflet.css"><script src="lib/leaflet.js"></script><script src="lib/shp.min.js"></script><script src="lib/togeojson.umd.js"></script>
 <style>@font-face{font-family:Vazirmatn;src:url(lib/Vazirmatn.woff2) format("woff2");font-weight:100 900}
-*{box-sizing:border-box}html,body{height:100%;margin:0;background:#000;font:14px/1.4 Roboto,system-ui,Arial,sans-serif;color:#212121;overflow:hidden;touch-action:manipulation}
-[hidden]{display:none!important}button{font:inherit;cursor:pointer}
+:root{--bg:#fff;--fg:#212121;--mut:#666;--card:#fff;--line:#e0e0e0;--hl:#f2f7ff;--pri:#1565c0;--prt:#fff;--inp:#fff;--ib:#bbb;--bar:#1565c0;--dg:#c62828}
+:root[data-t=dark]{--bg:#1c1c1e;--fg:#eceff1;--mut:#a0a7ad;--card:#2a2a2d;--line:#3d3d41;--hl:#25354a;--pri:#64b5f6;--prt:#0b1b2b;--inp:#1c1c1e;--ib:#58585c;--bar:#0d3c75;--dg:#ef9a9a}
+*{box-sizing:border-box}html,body{height:100%;margin:0;background:#000;font:14px/1.45 Roboto,system-ui,Arial,sans-serif;color:var(--fg);overflow:hidden;touch-action:manipulation}
+html[lang=fa] body{font-family:Vazirmatn,system-ui,sans-serif}
+[hidden]{display:none!important}button{font:inherit;cursor:pointer}input,select{font:inherit;color:var(--fg)}
 #v,#c{position:fixed;inset:0;width:100%;height:100%;object-fit:cover}
-#mapw{position:fixed;inset:0;z-index:3;background:#e5e3df}#map{position:absolute;inset:0}
-#bar{position:fixed;top:0;left:0;right:0;z-index:2000;height:calc(56px + env(safe-area-inset-top,0px));padding-top:env(safe-area-inset-top,0px);background:#1565c0;color:#fff;display:flex;align-items:center;gap:4px;box-shadow:0 2px 6px #0006}
-.ib{background:none;border:0;color:#fff;font-size:24px;width:48px;height:48px}
-#ttl{flex:1;min-width:0;line-height:1.2;cursor:pointer}#ttl b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:16px}#ttl small{opacity:.85;font-size:12px}
+#mapw{position:fixed;inset:0;z-index:3;background:#d6d4cf}#map{position:absolute;inset:0}#map.inv .leaflet-tile-pane{filter:invert(1) hue-rotate(180deg) brightness(.95) contrast(.9)}
+#bar{position:fixed;top:0;left:0;right:0;z-index:2000;height:calc(56px + env(safe-area-inset-top,0px));padding-top:env(safe-area-inset-top,0px);background:var(--bar);color:#fff;display:flex;align-items:center;gap:2px;box-shadow:0 2px 6px #0006;direction:ltr}
+.ib{background:none;border:0;color:#fff;font-size:24px;width:48px;height:48px;display:flex;align-items:center;justify-content:center}
+#ttl{flex:1;min-width:0;line-height:1.2;cursor:pointer;text-align:left}html[dir=rtl] #ttl{direction:rtl;text-align:right}#ttl b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:16px}#ttl small{opacity:.85;font-size:12px}
 #seg{display:flex;margin-right:8px;border:1px solid #fff9;border-radius:6px;overflow:hidden}#seg button{background:none;border:0;color:#fff;padding:7px 12px;font-weight:700}#seg .on{background:#fff;color:#1565c0}
 .fabs{position:absolute;right:14px;bottom:calc(24px + env(safe-area-inset-bottom,0px));z-index:1000;display:flex;flex-direction:column;gap:12px}
-.fab{width:52px;height:52px;border-radius:50%;border:0;background:#fff;color:#1565c0;font-size:24px;box-shadow:0 2px 8px #0006}
-#chip{position:fixed;z-index:1999;left:10px;top:calc(66px + env(safe-area-inset-top,0px));background:#fffe;border-radius:14px;padding:3px 10px;font-size:12px;box-shadow:0 1px 4px #0004}
+.fab{width:52px;height:52px;border-radius:50%;border:0;background:var(--card);color:var(--pri);font-size:24px;box-shadow:0 2px 8px #0006}
+#chip{position:fixed;z-index:1999;left:10px;top:calc(66px + env(safe-area-inset-top,0px));background:var(--card);color:var(--fg);border-radius:14px;padding:3px 10px;font-size:12px;box-shadow:0 1px 4px #0005}
 #scrim{position:fixed;inset:0;z-index:2100;background:#0008}
-#drawer{position:fixed;top:0;bottom:0;left:0;width:280px;max-width:84vw;z-index:2101;background:#fff;box-shadow:2px 0 10px #0006;overflow:auto;transform:translateX(-100%);transition:transform .2s}#drawer.o{transform:none}
-#drawer header{background:#1565c0;color:#fff;padding:calc(22px + env(safe-area-inset-top,0px)) 16px 16px}#drawer header b{font-size:20px}#drawer header div{opacity:.85;font-size:12px}
-#drawer button{display:block;width:100%;text-align:left;background:none;border:0;padding:14px 18px;font-size:15px;color:#212121}#drawer button:active{background:#e3f2fd}#drawer hr{border:0;border-top:1px solid #e0e0e0;margin:4px 0}
-#sheet{position:fixed;top:calc(56px + env(safe-area-inset-top,0px));right:0;bottom:0;width:min(340px,90vw);overflow:auto;z-index:2050;background:#fff;box-shadow:-3px 0 12px #0007;padding:6px 12px calc(12px + env(safe-area-inset-bottom,0px));animation:slin .2s}@keyframes slin{from{transform:translateX(100%)}to{transform:none}}
-.li{display:flex;align-items:center;gap:8px;padding:8px 2px;border-bottom:1px solid #eee}.li.a{font-weight:700;background:#f2f7ff;padding:8px 4px;margin-top:6px;border-radius:6px}.li small{color:#666}
-.sw{width:18px;height:18px;border-radius:4px;border:1px solid #0003}
+#drawer{position:fixed;top:0;bottom:0;left:0;width:280px;max-width:84vw;z-index:2101;background:var(--card);box-shadow:2px 0 10px #0006;overflow:auto;transform:translateX(-100%);transition:transform .2s}#drawer.o{transform:none}
+#drawer header{background:var(--bar);color:#fff;padding:calc(22px + env(safe-area-inset-top,0px)) 16px 16px}#drawer header b{font-size:20px}#drawer header div{opacity:.85;font-size:12px}
+#drawer button{display:block;width:100%;text-align:start;background:none;border:0;padding:14px 18px;font-size:15px;color:var(--fg)}#drawer button:active{background:var(--hl)}#drawer hr{border:0;border-top:1px solid var(--line);margin:4px 0}
+#sheet{position:fixed;top:calc(56px + env(safe-area-inset-top,0px));right:0;bottom:0;width:min(340px,90vw);overflow:auto;z-index:2050;background:var(--card);box-shadow:-3px 0 12px #0007;padding:6px 12px calc(12px + env(safe-area-inset-bottom,0px));animation:slin .2s}@keyframes slin{from{transform:translateX(100%)}to{transform:none}}
+.li{display:flex;align-items:center;gap:8px;padding:8px 2px;border-bottom:1px solid var(--line)}.li.a{font-weight:700;background:var(--hl);padding:8px 4px;margin-top:6px;border-radius:6px}.li small{color:var(--mut)}
+.sec{font-size:12px;font-weight:700;color:var(--mut);text-transform:uppercase;margin:12px 0 4px}.chips{display:flex;flex-wrap:wrap;gap:6px}.chip{border:1px solid var(--ib);background:none;color:var(--fg);border-radius:16px;padding:5px 12px}.chip.on{background:var(--pri);color:var(--prt);border-color:var(--pri)}
+.sw{width:18px;height:18px;border-radius:4px;border:1px solid #0004;flex:none}
 #dlgw{position:fixed;inset:0;z-index:2200;background:#0008;display:flex;align-items:center;justify-content:center;padding:16px}
-#dlg{background:#fff;border-radius:10px;padding:18px;width:100%;max-width:420px;max-height:88vh;overflow:auto;box-shadow:0 8px 30px #0008}#dlg h3{margin:0 0 12px;font-size:18px}
-#dlg label{display:flex;align-items:center;gap:8px;margin:8px 0}#dlg input[type=text],#dlg select,#dlg input[type=number]{flex:1;padding:8px;border:1px solid #bbb;border-radius:6px;font-size:15px;min-width:0}
-#dlg input[type=color]{width:44px;height:30px;padding:0;border:0;background:none}
-.act{display:flex;justify-content:flex-end;gap:8px;margin-top:14px;flex-wrap:wrap}.act button,.tb{background:none;border:0;color:#1565c0;font-weight:700;padding:8px 12px;text-transform:uppercase;font-size:13px}.act .pr{background:#1565c0;color:#fff;border-radius:6px}.tb{padding:4px 8px;font-size:12px}
+#dlg{background:var(--card);color:var(--fg);border-radius:10px;padding:18px;width:100%;max-width:420px;max-height:88vh;overflow:auto;box-shadow:0 8px 30px #0008}#dlg h3{margin:0 0 12px;font-size:18px}
+#dlg label{display:flex;align-items:center;gap:8px;margin:8px 0}#dlg input[type=text],#dlg select,#dlg input[type=number]{flex:1;padding:8px;border:1px solid var(--ib);background:var(--inp);border-radius:6px;font-size:15px;min-width:0}
+#dlg input[type=color]{width:44px;height:30px;padding:0;border:0;background:none}.nt{font-size:12px;color:var(--mut)}
+.act{display:flex;justify-content:flex-end;gap:8px;margin-top:14px;flex-wrap:wrap}.act button,.tb{background:none;border:0;color:var(--pri);font-weight:700;padding:8px 12px;text-transform:uppercase;font-size:13px}.act .pr{background:var(--pri);color:var(--prt);border-radius:6px}.act .dg{color:var(--dg)}.tb{padding:4px 8px;font-size:12px}
+.at{border-collapse:collapse;font-size:12px}.at td,.at th{border:1px solid var(--line);padding:3px 6px;text-align:start;white-space:nowrap}
 #toast{position:fixed;left:50%;bottom:calc(90px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:2300;background:#323232;color:#fff;padding:10px 16px;border-radius:6px;max-width:88vw;text-align:center}
-#top{position:fixed;top:calc(56px + env(safe-area-inset-top,0px));left:0;right:0;z-index:5;padding:4px 10px;font-size:12px;background:#0008;color:#fff;text-align:center}#dbg{font-size:11px;opacity:.8}
+#wel{position:fixed;inset:0;z-index:2150;background:linear-gradient(#1565c0,#0d47a1);display:flex;align-items:center;justify-content:center;padding:20px;color:#fff;overflow:auto}.wc{width:100%;max-width:380px;text-align:center}.wc h2{font-size:30px;margin:0}.wc p{opacity:.85;margin:6px 0 22px}.wb{display:block;width:100%;margin:10px 0;padding:14px;border-radius:8px;border:0;background:#fff;color:#1565c0;font-size:15px}.wb small{display:block;color:#555;font-size:12px;margin-bottom:2px}.wb.pr{background:#ffb300;color:#212121}.lk{background:none;border:0;color:#fff;text-decoration:underline;margin-top:14px;font-size:14px}
+#top{position:fixed;top:calc(56px + env(safe-area-inset-top,0px));left:0;right:0;z-index:5;padding:4px 10px;font-size:12px;background:#0008;color:#fff;text-align:center}#dbg{font-size:11px;opacity:.8;direction:ltr}
 #mm{position:fixed;left:10px;top:calc(104px + env(safe-area-inset-top,0px));width:110px;height:110px;border-radius:50%;background:#0008;border:1px solid #fff5;z-index:5}
 #warn{position:fixed;left:10px;right:10px;top:calc(226px + env(safe-area-inset-top,0px));z-index:5;background:#b45309e6;color:#fff;padding:8px 12px;border-radius:8px;font-size:13px}
-#arc{position:fixed;left:0;right:0;bottom:0;z-index:5;padding:8px 10px calc(10px + env(safe-area-inset-bottom,0px));display:flex;justify-content:space-between;align-items:flex-end;pointer-events:none}#arc>*{pointer-events:auto}
+#arc{position:fixed;left:0;right:0;bottom:0;z-index:5;padding:8px 10px calc(10px + env(safe-area-inset-bottom,0px));display:flex;justify-content:space-between;align-items:flex-end;pointer-events:none;direction:ltr}#arc>*{pointer-events:auto}
 .pad{display:grid;grid-template-columns:repeat(3,46px);grid-template-rows:repeat(2,40px);gap:5px}.pad button:nth-child(1){grid-column:2}
 #arc button{background:#0f172acc;color:#fff;border:1px solid #fff4;border-radius:10px;padding:8px 12px;font-size:14px}.side{display:flex;flex-direction:column;gap:6px;align-items:flex-end}
-#set{position:fixed;left:10px;right:10px;bottom:calc(150px + env(safe-area-inset-bottom,0px));z-index:2060;background:#fff;border-radius:12px;padding:12px;box-shadow:0 4px 18px #0007}#set label{display:flex;align-items:center;gap:8px;margin:7px 0}#set input[type=range]{flex:1}#set b{min-width:30px;text-align:right}
-#st{position:fixed;inset:0;z-index:2150;background:#0009;display:flex;align-items:center;justify-content:center;padding:16px}#stc0{background:#fff;border-radius:10px;padding:18px;max-width:420px;width:100%}#stc0 h3{margin:0 0 8px}#stc0 p{margin:0 0 12px;color:#444}#stc0 button{display:block;width:100%;margin:6px 0;padding:12px;border-radius:6px;border:1px solid #1565c0;background:#fff;color:#1565c0;font-weight:700;text-transform:uppercase}#stc0 #go{background:#1565c0;color:#fff}
+#set{position:fixed;left:10px;right:10px;bottom:calc(150px + env(safe-area-inset-bottom,0px));z-index:2060;background:var(--card);color:var(--fg);border-radius:12px;padding:12px;box-shadow:0 4px 18px #0007}#set label{display:flex;align-items:center;gap:8px;margin:7px 0}#set input[type=range]{flex:1}#set b{min-width:30px;text-align:end}
+#st{position:fixed;inset:0;z-index:2150;background:#0009;display:flex;align-items:center;justify-content:center;padding:16px}#stc0{background:var(--card);color:var(--fg);border-radius:10px;padding:18px;max-width:420px;width:100%}#stc0 h3{margin:0 0 8px}#stc0 p{margin:0 0 12px;color:var(--mut)}#stc0 button{display:block;width:100%;margin:6px 0;padding:12px;border-radius:6px;border:1px solid var(--pri);background:none;color:var(--pri);font-weight:700}#stc0 #go{background:var(--pri);color:var(--prt)}
 .lb{color:#111;font:11px Roboto,Arial,sans-serif;text-shadow:0 0 3px #fff,0 0 3px #fff;white-space:nowrap}
+:root[data-t=dark] .leaflet-popup-content-wrapper,:root[data-t=dark] .leaflet-popup-tip{background:var(--card);color:var(--fg)}
 </style></head><body>
 <video id="v" playsinline muted autoplay></video><canvas id="c"></canvas>
-<div id="mapw"><div id="map"></div><div class="fabs"><button class="fab" id="fx" title="Zoom to project">⤢</button><button class="fab" id="fl2" title="My location">◎</button></div></div>
-<header id="bar"><button class="ib" id="mnu">☰</button><div id="ttl"><b id="pn">Project</b><small id="ar2"></small></div><button class="ib" id="lyb" title="Layers"><svg viewBox="0 0 24 24" width="26" height="26"><path fill="#fff" d="M11.99 18.54l-7.37-5.73L3 14.07l9 7 9-7-1.63-1.27-7.38 5.74zM12 16l7.36-5.73L21 9l-9-7-9 7 1.63 1.27L12 16z"/></svg></button><div id="seg"><button id="vm" class="on">MAP</button><button id="va">AR</button></div></header>
-<div id="chip">GPS: waiting…</div>
+<div id="mapw"><div id="map"></div><div class="fabs"><button class="fab" id="fx" data-it="zoomProj">⤢</button><button class="fab" id="fl2" data-it="myLoc">◎</button></div></div>
+<header id="bar"><button class="ib" id="mnu">☰</button><div id="ttl"><b id="pn">…</b><small id="ar2"></small></div><button class="ib" id="lyb" data-it="layers"><svg viewBox="0 0 24 24" width="26" height="26"><path fill="#fff" d="M11.99 18.54l-7.37-5.73L3 14.07l9 7 9-7-1.63-1.27-7.38 5.74zM12 16l7.36-5.73L21 9l-9-7-9 7 1.63 1.27L12 16z"/></svg></button><div id="seg"><button id="vm" class="on" data-i="map">MAP</button><button id="va" data-i="ar">AR</button></div></header>
+<div id="chip">GPS</div>
 <div id="top" hidden><span id="info">…</span><div id="dbg"></div></div><canvas id="mm" width="220" height="220" hidden></canvas><div id="warn" hidden></div>
 <div id="arc" hidden><div class="pad"><button data-m="f">▲</button><button data-m="l">◀</button><button data-m="b">▼</button><button data-m="r">▶</button></div>
-<div class="side"><button id="an">Snap to nearest point</button><button id="cm">Restart camera</button><button id="rs">Reset position</button><button id="gr">⚙ AR settings</button></div></div>
+<div class="side"><button id="an" data-i="snap"></button><button id="cm" data-i="restart"></button><button id="rs" data-i="reset"></button><button id="gr" data-i="arSet"></button></div></div>
 <div id="set" hidden>
-<label>Depth offset (m) <input id="dp" type="range" min="-1" max="2" step="0.1" value="0"><b id="dpv">0</b></label>
-<label>Eye height (m) <input id="ey" type="range" min="1" max="2" step="0.05" value="1.5"><b id="eyv">1.5</b></label>
-<label>Camera field of view <input id="fv" type="range" min="50" max="90" step="1" value="66"><b id="fvv">66</b></label>
-<label>Tilt trim (°) <input id="pt" type="range" min="-15" max="15" step="0.5" value="0"><b id="ptv">0</b></label>
-<label>Move step (m) <input id="sp" type="range" min="0.5" max="10" step="0.5" value="2"><b id="spv">2</b></label>
-<label><input type="checkbox" id="ud"> Show at real depth (underground)</label></div>
+<label><span data-i="dOff"></span><input id="dp" type="range" min="-1" max="2" step="0.1" value="0"><b id="dpv">0</b></label>
+<label><span data-i="eye"></span><input id="ey" type="range" min="1" max="2" step="0.05" value="1.5"><b id="eyv">1.5</b></label>
+<label><span data-i="fov"></span><input id="fv" type="range" min="50" max="90" step="1" value="66"><b id="fvv">66</b></label>
+<label><span data-i="tilt"></span><input id="pt" type="range" min="-15" max="15" step="0.5" value="0"><b id="ptv">0</b></label>
+<label><span data-i="step"></span><input id="sp" type="range" min="0.5" max="10" step="0.5" value="2"><b id="spv">2</b></label>
+<label><input type="checkbox" id="ud"><span data-i="real"></span></label></div>
 <div id="scrim" hidden></div>
-<nav id="drawer"><header><b>AR-Links</b><div>Underground utilities in AR and on the map</div></header>
-<button data-go="proj" id="pt0">Projects</button><button data-go="lay">Layers</button><button data-go="imp">Import layer</button><hr><button data-go="bak">Backup (JSON)</button><button data-go="res">Restore backup</button><hr><button data-go="help">Help</button></nav>
-<div id="sheet" hidden></div><div id="dlgw" hidden><div id="dlg"></div></div><div id="toast" hidden></div>
-<div id="st" hidden><div id="stc0"><h3>Start AR</h3><p>The camera, location and motion sensors are used to overlay your layers on the real world.</p><button id="go">Start AR with GPS</button><button id="sim">Simulate at project (no GPS)</button><button id="stc">Cancel</button></div></div>
+<nav id="drawer"><header><b>AR-Links</b><div data-i="drSub"></div></header>
+<button data-go="proj" id="pt0" data-i="projects"></button><button data-go="close" data-i="closeP"></button><button data-go="lay" data-i="layers"></button><button data-go="imp" data-i="imp"></button><hr><button data-go="bak" data-i="backup"></button><button data-go="res" data-i="restore"></button><hr><button data-go="set" data-i="settings"></button><button data-go="help" data-i="help"></button></nav>
+<div id="wel" hidden></div><div id="sheet" hidden></div><div id="dlgw" hidden><div id="dlg"></div></div><div id="toast" hidden></div>
+<div id="st" hidden><div id="stc0"><h3 data-i="startAR"></h3><p data-i="startTxt"></p><button id="go" data-i="startGps"></button><button id="sim" data-i="sim"></button><button id="stc" data-i="cancel"></button></div></div>
 <input id="fl" type="file" accept=".geojson,.json,.kml,.zip" hidden><input id="fb" type="file" accept=".json" hidden>
 <script>
-
 const $=id=>document.getElementById(id),v=$('v'),cv=$('c'),ctx=cv.getContext('2d'),mm=$('mm'),mx=mm.getContext('2d');
-const S={sim:0,off:[0,0],a:0,b:90,g:0,yf:0,abs:0,cmp:null,ok:0,depth:0,under:0,pt:0,plan:1,started:0,sa:0,eye:1.5,fov:66,step:2,P:null,acc:0,zn:0,nocam:0};
-let MAP,GL,UM,W,H,DB={projects:[{id:'p1',n:'Project 1',areas:[]}],cur:0},REF=[0,0],C=[0,0],TY={};const D={pl:[],tx:[],mh:[]};
+let SET={lang:'en',theme:'system',bm:'osm'};try{Object.assign(SET,JSON.parse(localStorage.getItem('arl_set')||'{}'))}catch(e){}
+const saveSet=()=>{try{localStorage.setItem('arl_set',JSON.stringify(SET))}catch(e){}};
+const I={en:{noProject:'No project open',tapOpen:'Tap to open or create a project',cnt:'{a} area(s) · {l} layer(s)',map:'MAP',ar:'AR',gpsWait:'GPS: waiting…',gps:'GPS ±{x} m',gpsDenied:'GPS: permission denied',gpsNA:'GPS: unavailable',
+snap:'Snap to nearest point',restart:'Restart camera',reset:'Reset position',arSet:'⚙ AR settings',dOff:'Depth offset (m)',eye:'Eye height (m)',fov:'Camera field of view',tilt:'Tilt trim (°)',step:'Move step (m)',real:'Show at real depth (underground)',
+startAR:'Start AR',startTxt:'The camera, location and motion sensors are used to overlay your layers on the real world.',startGps:'Start AR with GPS',sim:'Simulate at project (no GPS)',cancel:'Cancel',
+drSub:'Underground utilities in AR and on the map',projects:'Projects',closeP:'Close project',layers:'Layers',imp:'Import layer',backup:'Backup (JSON)',restore:'Restore backup',settings:'Settings',help:'Help',
+openLast:'Open last project',newProject:'Create new project',choose:'Choose from existing projects ({n})',restoreBk:'Restore from backup',chooseP:'Choose a project to open',back:'← Back',noneYet:'No projects yet.',rename:'Rename',delete:'Delete',close:'Close',newName:'New project name',renameP:'Rename project',
+created:'Project created — add an area, then import layers',delPq:'Delete this project and all its areas?',delAq:'Delete this area and its layers?',delLq:'Delete this layer?',addArea:'+ Area',addLayer:'+ Layer',edit:'Edit',noAreas:'No areas yet. Tap “+ Area”, then add layers from files.',newArea:'New area name',area:'Area',name:'Name',save:'Save',
+basemap:'Basemap',bm_osm:'Streets',bm_sat:'Satellite',bm_hyb:'Hybrid',bm_topo:'Topo',bm_none:'None',layerProps:'Layer properties',style:'Style',single:'Single symbol',categorized:'Categorized by attribute',attribute:'Attribute',defColor:'Default color',color:'Color',lineWidth:'Line width',marker:'Point marker',ring:'Ring',noMarker:'No marker',labelBy:'Label by',none:'None',depth:'Depth (m)',attrs:'Attributes',zoomTo:'Zoom to',features:'feature(s)',noAttrs:'This layer has no attributes.',type:'Type',
+ty_Water:'Water',ty_Gas:'Gas',ty_Electric:'Electric',ty_Telecom:'Telecom',ty_Sewer:'Sewer',ty_Other:'Other',importLayer:'Import layer',crs:'Coordinate system',crsPrj:'read from .prj, converted to WGS 84',crsKml:'WGS 84 (KML standard)',crsGj:'WGS 84 (GeoJSON standard)',doImport:'Import',cantImport:'Cannot import',
+errPrj:'This Shapefile ZIP has no .prj file, so its coordinate system is unknown. Add the .prj file and try again.',errCrs:'This GeoJSON declares another coordinate system ({c}). Only WGS 84 is accepted.',errFmt:'Unsupported format “.{e}”. Supported: GeoJSON, KML, Shapefile (.zip containing .prj).',noGeom:'No geometry found in the file',badCoord:'Coordinates are not valid WGS 84 — check the file',imported:'Layer imported',needAreaFirst:'Create an area first (Layers → + Area)',
+backupOk:'Backup restored',backupBad:'Not a valid backup file',helpTxt:'<p><b>Supported formats</b><br>GeoJSON (WGS 84), KML (WGS 84) and Shapefile as .zip with its .prj file (any coordinate system, converted automatically).</p><p>Formats that do not state their coordinate system (e.g. DXF) are not supported. Convert them in QGIS first, with the correct CRS set.</p><p><b>AR tips</b><br>GPS is only accurate to a few meters. Stand next to a known point and use “Snap to nearest point”.</p>',
+snapped:'Position snapped to the nearest point (was {d} m away)',gpsNotReady:'GPS position not ready yet',nothingSnap:'No visible features to snap to',locUnavail:'Location unavailable — allow Location access',mapFail:'Map library failed to load',language:'Language',theme:'Theme',th_system:'System',th_light:'Light',th_dark:'Dark',ok:'OK',zoomProj:'Zoom to project',myLoc:'My location',
+camDark:'Camera could not start. Open the link directly in Chrome/Safari and allow camera access. Showing a dark background for now.',camFail:'Camera could not start. Open the link directly in Chrome/Safari and allow camera access.',camNA:'Camera unavailable. Open the link directly in your browser and allow camera access.',gpsFix:'Waiting for a GPS fix. Allow Location access (and go outside), or tap Simulate.',gpsWait2:'Waiting for GPS…',heading:'Heading',simulated:'Simulated',items:'Items',nearest:'Nearest line',center:'Project center is',away:'away (red arrow on the mini map). If you are not on site, use Simulate; if you are, check the layer coordinates.',noCompass:'Absolute compass not available on this device; directions may be wrong.',locDenied:'Location permission denied.',noSensor:'No orientation sensor found; drag to look around.',needArea:'Add an area and import a layer first (menu ☰ → Import layer).'},
+fa:{noProject:'پروژه‌ای باز نیست',tapOpen:'برای باز کردن یا ساخت پروژه لمس کنید',cnt:'{a} محدوده · {l} لایه',map:'نقشه',ar:'AR',gpsWait:'GPS: در انتظار…',gps:'GPS ±{x} متر',gpsDenied:'GPS: مجوز داده نشد',gpsNA:'GPS: در دسترس نیست',
+snap:'چسباندن به نزدیک‌ترین نقطه',restart:'راه‌اندازی دوباره‌ی دوربین',reset:'بازنشانی موقعیت',arSet:'⚙ تنظیمات AR',dOff:'تغییر عمق (متر)',eye:'ارتفاع چشم (متر)',fov:'زاویه‌ی دید دوربین',tilt:'تصحیح شیب (درجه)',step:'گام جابه‌جایی (متر)',real:'نمایش در عمق واقعی (زیر زمین)',
+startAR:'شروع AR',startTxt:'برای نمایش لایه‌ها روی دنیای واقعی از دوربین، موقعیت و حسگرهای حرکت استفاده می‌شود.',startGps:'شروع AR با GPS',sim:'شبیه‌سازی در محل پروژه (بدون GPS)',cancel:'انصراف',
+drSub:'تأسیسات زیرزمینی در AR و روی نقشه',projects:'پروژه‌ها',closeP:'بستن پروژه',layers:'لایه‌ها',imp:'وارد کردن لایه',backup:'پشتیبان‌گیری (JSON)',restore:'بازیابی پشتیبان',settings:'تنظیمات',help:'راهنما',
+openLast:'باز کردن آخرین پروژه',newProject:'ساخت پروژه‌ی جدید',choose:'انتخاب از بین پروژه‌های موجود ({n})',restoreBk:'بازیابی از پشتیبان',chooseP:'یک پروژه برای باز کردن انتخاب کنید',back:'→ بازگشت',noneYet:'هنوز پروژه‌ای نیست.',rename:'تغییر نام',delete:'حذف',close:'بستن',newName:'نام پروژه‌ی جدید',renameP:'تغییر نام پروژه',
+created:'پروژه ساخته شد؛ یک محدوده بسازید و لایه وارد کنید',delPq:'پروژه با همه‌ی محدوده‌هایش حذف شود؟',delAq:'محدوده و لایه‌هایش حذف شود؟',delLq:'این لایه حذف شود؟',addArea:'+ محدوده',addLayer:'+ لایه',edit:'ویرایش',noAreas:'هنوز محدوده‌ای نیست. «+ محدوده» را بزنید و لایه‌ها را از فایل اضافه کنید.',newArea:'نام محدوده‌ی جدید',area:'محدوده',name:'نام',save:'ذخیره',
+basemap:'نقشه‌ی پس‌زمینه',bm_osm:'خیابان',bm_sat:'ماهواره',bm_hyb:'ترکیبی',bm_topo:'توپوگرافی',bm_none:'بدون',layerProps:'ویژگی‌های لایه',style:'نمادگذاری',single:'نماد یکسان',categorized:'دسته‌بندی بر اساس ویژگی',attribute:'ویژگی',defColor:'رنگ پیش‌فرض',color:'رنگ',lineWidth:'ضخامت خط',marker:'نشانگر نقطه',ring:'حلقه',noMarker:'بدون نشانگر',labelBy:'برچسب بر اساس',none:'هیچ‌کدام',depth:'عمق (متر)',attrs:'جدول ویژگی‌ها',zoomTo:'زوم به',features:'عارضه',noAttrs:'این لایه ویژگی ندارد.',type:'نوع',
+ty_Water:'آب',ty_Gas:'گاز',ty_Electric:'برق',ty_Telecom:'مخابرات',ty_Sewer:'فاضلاب',ty_Other:'سایر',importLayer:'وارد کردن لایه',crs:'سیستم مختصات',crsPrj:'از فایل prj خوانده و به WGS 84 تبدیل شد',crsKml:'WGS 84 (استاندارد KML)',crsGj:'WGS 84 (استاندارد GeoJSON)',doImport:'وارد کردن',cantImport:'وارد کردن ممکن نیست',
+errPrj:'این فایل ZIP شیپ‌فایل، فایل prj. ندارد و سیستم مختصاتش نامعلوم است. فایل prj. را اضافه کنید و دوباره تلاش کنید.',errCrs:'این GeoJSON سیستم مختصات دیگری اعلام کرده ({c}). فقط WGS 84 پذیرفته می‌شود.',errFmt:'فرمت «.{e}» پشتیبانی نمی‌شود. فرمت‌های مجاز: GeoJSON، KML، شیپ‌فایل (ZIP حاوی prj.).',noGeom:'هیچ هندسه‌ای در فایل پیدا نشد',badCoord:'مختصات WGS 84 معتبر نیست؛ فایل را بررسی کنید',imported:'لایه وارد شد',needAreaFirst:'ابتدا یک محدوده بسازید (لایه‌ها ← + محدوده)',
+backupOk:'پشتیبان بازیابی شد',backupBad:'فایل پشتیبان معتبر نیست',helpTxt:'<p><b>فرمت‌های مجاز</b><br>GeoJSON (WGS 84)، KML (WGS 84) و شیپ‌فایل به‌صورت ZIP همراه فایل prj. (هر سیستم مختصاتی، خودکار تبدیل می‌شود).</p><p>فرمت‌هایی که سیستم مختصاتشان را اعلام نمی‌کنند (مثل DXF) پشتیبانی نمی‌شوند. آن‌ها را اول در QGIS با CRS درست تبدیل کنید.</p><p><b>نکته‌های AR</b><br>دقت GPS فقط چند متر است. کنار یک نقطه‌ی معلوم بایستید و «چسباندن به نزدیک‌ترین نقطه» را بزنید.</p>',
+snapped:'موقعیت روی نزدیک‌ترین نقطه قرار گرفت (فاصله‌ی قبلی {d} متر)',gpsNotReady:'موقعیت GPS هنوز آماده نیست',nothingSnap:'عارضه‌ی قابل‌نمایشی برای چسباندن نیست',locUnavail:'موقعیت در دسترس نیست؛ دسترسی به مکان را مجاز کنید',mapFail:'کتابخانه‌ی نقشه بارگذاری نشد',language:'زبان',theme:'پوسته',th_system:'سیستم',th_light:'روشن',th_dark:'تاریک',ok:'تأیید',zoomProj:'زوم به پروژه',myLoc:'موقعیت من',
+camDark:'دوربین باز نشد؛ لینک را مستقیم در Chrome/Safari باز کنید و اجازه‌ی دوربین بدهید. فعلاً پس‌زمینه‌ی تیره نمایش داده می‌شود.',camFail:'دوربین باز نشد؛ لینک را مستقیم در Chrome/Safari باز کنید و اجازه‌ی دوربین بدهید.',camNA:'دوربین در دسترس نیست؛ لینک را مستقیم در مرورگر باز کنید و اجازه‌ی دوربین بدهید.',gpsFix:'در انتظار موقعیت GPS هستم. مجوز «مکان» را بدهید (و بیرون از ساختمان باشید)، یا «شبیه‌سازی» را بزنید.',gpsWait2:'در انتظار GPS…',heading:'جهت',simulated:'شبیه‌سازی',items:'عناصر',nearest:'نزدیک‌ترین لوله',center:'مرکز پروژه',away:'از شما فاصله دارد (پیکان قرمز در نقشه‌ی کوچک). اگر در محل نیستید «شبیه‌سازی» را امتحان کنید؛ اگر در محل هستید مختصات لایه را بررسی کنید.',noCompass:'قطب‌نمای مطلق در این دستگاه موجود نیست؛ جهت‌ها ممکن است نادرست باشند.',locDenied:'دسترسی به موقعیت مکانی رد شد.',noSensor:'حسگر جهت یافت نشد؛ با کشیدن انگشت/ماوس به اطراف نگاه کنید.',needArea:'ابتدا یک محدوده و لایه اضافه کنید (منوی ☰ ← وارد کردن لایه).'}};
+const t=(k,o)=>{let s=(I[SET.lang]||I.en)[k]||I.en[k]||k;if(o)for(const x in o)s=s.replace('{'+x+'}',o[x]);return s};
+function applyTheme(){const m=SET.theme,d=m==='dark'||(m==='system'&&matchMedia('(prefers-color-scheme: dark)').matches);document.documentElement.dataset.t=d?'dark':'light';$('map').classList.toggle('inv',d&&SET.bm==='osm')}
+function applyLang(){const h=document.documentElement;h.lang=SET.lang;h.dir=SET.lang==='fa'?'rtl':'ltr';document.querySelectorAll('[data-i]').forEach(e=>e.textContent=t(e.dataset.i));document.querySelectorAll('[data-it]').forEach(e=>e.title=t(e.dataset.it));$('chip').textContent=S.ll?t('gps',{x:S.acc.toFixed(0)}):t('gpsWait')}
+const S={sim:0,off:[0,0],a:0,b:90,g:0,yf:0,abs:0,cmp:null,ok:0,depth:0,under:0,pt:0,plan:1,started:0,open:0,sa:0,eye:1.5,fov:66,step:2,P:null,acc:0,zn:0,nocam:0};
+let MAP,GL,UM,BL=[],W,H,DB={projects:[],cur:0},REF=[0,0],C=[0,0],TY={};const D={pl:[],tx:[],mh:[]};
 function rs(){const d=devicePixelRatio||1;W=innerWidth;H=innerHeight;cv.width=W*d;cv.height=H*d;ctx.setTransform(d,0,0,d,0,0)}
 addEventListener('resize',rs);rs();
 const esc=s=>String(s).replace(/[&<>"']/g,c=>'&#'+c.charCodeAt(0)+';');
 const xy=(lo,la)=>[(lo-REF[0])*111320*Math.cos(REF[1]*Math.PI/180),(la-REF[1])*110574];
+const PAL=['#e6194b','#3cb44b','#ffe119','#4363d8','#f58231','#911eb4','#46f0f0','#f032e6','#bcf60c','#008080','#9a6324','#800000'];
+const cf=(l,a)=>(l.cat&&a&&a[l.cat]!=null&&l.cc&&l.cc[a[l.cat]])||l.c;
+const uniq=(l,f)=>{const s=new Set();[l.g.la,l.g.pa].forEach(A=>A&&A.forEach(a=>{if(a&&a[f]!=null&&s.size<60)s.add(String(a[f]))}));return[...s].sort()};
 const idb=()=>new Promise((r,j)=>{const q=indexedDB.open('arl',1);q.onupgradeneeded=()=>q.result.createObjectStore('k');q.onsuccess=()=>r(q.result);q.onerror=()=>j(q.error)});
-function wire(){if(!DB.projects)DB={projects:[{id:'p1',n:'Project 1',areas:DB.areas||[]}],cur:0};if(!DB.projects.length)DB.projects.push({id:'p'+Date.now().toString(36),n:'Project 1',areas:[]});if(!(DB.cur>=0&&DB.cur<DB.projects.length))DB.cur=0;Object.defineProperty(DB,'areas',{get(){return DB.projects[DB.cur].areas},enumerable:false,configurable:true})}wire();
+function wire(){if(!DB.projects){const a=DB.areas||[];DB={projects:a.length?[{id:'p1',n:'Project 1',areas:a}]:[],cur:0}}
+ if(DB.projects.length==1&&/^(Project 1|پروژه‌ی ۱)$/.test(DB.projects[0].n)&&!DB.projects[0].areas.length)DB.projects=[];
+ if(!(DB.cur>=0&&DB.cur<DB.projects.length))DB.cur=0;
+ Object.defineProperty(DB,'areas',{get(){return S.open&&DB.projects[DB.cur]?DB.projects[DB.cur].areas:[]},enumerable:false,configurable:true})}wire();
 async function load(){try{const d=await idb();DB=await new Promise(r=>{const q=d.transaction('k').objectStore('k').get('db');q.onsuccess=()=>r(q.result||{areas:[]});q.onerror=()=>r({areas:[]})});wire()}catch(e){}}
 async function save(){try{const d=await idb();d.transaction('k','readwrite').objectStore('k').put(DB,'db')}catch(e){}}
 function setArea(i){S.sa=i;const a=DB.areas[i];REF=a&&a.L.length?a.c.slice():[0,0];C=[0,0];rebuild();if(S.ll)S.P=xy(S.ll[0],S.ll[1])}
-function rebuild(){TY={};D.pl=[];D.tx=[];D.mh=[];DB.areas.forEach(a=>{if(!a.on)return;a.L.forEach(l=>{TY[l.id]=l;if(!l.on)return;const g=l.g;
- g.l.forEach(p=>{const q=[];for(let i=0;i<p.length;i+=2)q.push(...xy(p[i],p[i+1]));D.pl.push({l:'pipe',p:q,k:l.id})});
- g.t.forEach(t=>{const q=xy(t.x,t.y);D.tx.push({t:t.t,x:q[0],y:q[1],d:0,k:l.id})});
- g.p.forEach(m=>{const q=xy(m[0],m[1]);D.mh.push([q[0],q[1],l.id])})})});S.cnt=D.pl.length+D.tx.length+D.mh.length}
+function rebuild(){TY={};D.pl=[];D.tx=[];D.mh=[];DB.areas.forEach(a=>{if(!a.on)return;a.L.forEach(l=>{TY[l.id]=l;if(!l.on)return;const g=l.g,lb=(at,x,y)=>{const w=l.lf&&at&&at[l.lf];if(w!=null&&w!=='')D.tx.push({t:String(w),x,y,d:0,k:l.id})};
+ g.l.forEach((p,i)=>{const q=[];for(let j=0;j<p.length;j+=2)q.push(...xy(p[j],p[j+1]));const at=g.la&&g.la[i];D.pl.push({l:'pipe',p:q,k:l.id,c:cf(l,at)});const m=Math.floor((q.length/2-1)/2);lb(at,(q[2*m]+q[2*m+2])/2,(q[2*m+1]+q[2*m+3])/2)});
+ g.p.forEach((m,i)=>{const q=xy(m[0],m[1]),at=g.pa&&g.pa[i];if(l.ps!=='none')D.mh.push([q[0],q[1],l.id,cf(l,at)]);lb(at,q[0],q[1])});
+ (g.t||[]).forEach(tt=>{const q=xy(tt.x,tt.y);D.tx.push({t:tt.t,x:q[0],y:q[1],d:0,k:l.id})})})});S.cnt=D.pl.length+D.tx.length+D.mh.length}
 function onGps(p){const lo=p.coords.longitude,la=p.coords.latitude;S.acc=p.coords.accuracy;S.ll=[lo,la];let bi=-1,bd=1e18;
  DB.areas.forEach((a,i)=>{if(!a.on||!a.L.length)return;const q=Math.hypot((lo-a.c[0])*Math.cos(la*Math.PI/180),la-a.c[1]);if(q<bd){bd=q;bi=i}});
  if(bi>=0&&bi!==S.sa)setArea(bi);const n=xy(lo,la);S.P=S.P&&Math.hypot(n[0]-S.P[0],n[1]-S.P[1])<30?[S.P[0]+(n[0]-S.P[0])*.35,S.P[1]+(n[1]-S.P[1])*.35]:n;
- $('chip').textContent='GPS ±'+S.acc.toFixed(0)+' m';if(MAP)planUser()}
+ $('chip').textContent=t('gps',{x:S.acc.toFixed(0)});if(MAP)planUser()}
 function getP(){if(S.sim)return[C[0]+S.off[0],C[1]+S.off[1]];return S.P?[S.P[0]+S.off[0],S.P[1]+S.off[1]]:null}
 function mat(yf){const r=Math.PI/180,al=(S.a-yf)*r,be=(S.b+S.pt)*r,ga=S.g*r,cA=Math.cos(al),sA=Math.sin(al),cB=Math.cos(be),sB=Math.sin(be),cG=Math.cos(ga),sG=Math.sin(ga);
  return[[cA*cG-sA*sB*sG,-cB*sA,cG*sA*sB+cA*sG],[cG*sA+cA*sB*sG,cA*cB,sA*sG-cA*cG*sB],[-cB*sG,sB,cB*cG]]}
@@ -94,7 +135,7 @@ function draw(){
  ctx.clearRect(0,0,W,H);mx.clearRect(0,0,220,220);
  const M=mat(S.yf),hd=head(M),P=getP(),an=(screen.orientation?screen.orientation.angle:window.orientation)||0;
  $('dbg').textContent=(S.err||'ok')+' | video '+v.videoWidth+'x'+v.videoHeight+' rs'+v.readyState;if(S.nocam&&!v.srcObject){const g=ctx.createLinearGradient(0,0,0,H);g.addColorStop(0,'#1e293b');g.addColorStop(1,'#0b1220');ctx.fillStyle=g;ctx.fillRect(0,0,W,H)}
- if(!P){$('info').textContent='Waiting for GPS…';const w0=$('warn');w0.hidden=0;w0.textContent=S.nocam?'Camera could not start. Open the link directly in Chrome/Safari and allow camera access.':'Waiting for a GPS fix. Allow Location access (and go outside), or tap Simulate.';return}
+ if(!P){$('info').textContent=t('gpsWait2');const w0=$('warn');w0.hidden=0;w0.textContent=S.nocam?t('camFail'):t('gpsFix');return}
  const F=Math.max(W,H)/2/Math.tan(S.fov*Math.PI/360),zp=-(S.eye+S.depth),zg=-S.eye,N=.2;
  const pr=(x,y,z)=>{const wx=x-P[0],wy=y-P[1],wz=z,dx=M[0][0]*wx+M[1][0]*wy+M[2][0]*wz,dy=M[0][1]*wx+M[1][1]*wy+M[2][1]*wz,dz=M[0][2]*wx+M[1][2]*wy+M[2][2]*wz;let r=dx,u=dy;
   if(an==90){r=-dy;u=dx}else if(an==270||an==-90){r=dy;u=-dx}else if(an==180){r=-dx;u=-dy}return[r,u,-dz]};
@@ -105,119 +146,148 @@ function draw(){
   for(let i=0;i<pts.length-2;i+=2)seg(pr(pts[i],pts[i+1],z),pr(pts[i+2],pts[i+3],z));ctx.stroke()}ctx.setLineDash([])};
  const txt=(s,p,col,size,bold)=>{if(p[2]<.5||p[2]>150)return;const q=sc(p);if(q[0]<-50||q[0]>W+50||q[1]<-20||q[1]>H+20)return;
   const fs=Math.max(11,Math.min(20,size*40/p[2]));ctx.font=(bold?'700 ':'')+fs+'px Vazirmatn,sans-serif';ctx.textAlign='center';ctx.lineWidth=3;ctx.strokeStyle='#000c';ctx.strokeText(s,q[0],q[1]);ctx.fillStyle=col;ctx.fillText(s,q[0],q[1])};
- const zk=k=>-(S.eye+(S.under?TY[k].d+S.depth:0));D.pl.forEach(l=>l.l==='tr'?poly(l.p,zk(l.k),'#fbbf24',1.5,[8,6]):poly(l.p,zk(l.k),TY[l.k].c,TY[l.k].w||4));
+ const zk=k=>-(S.eye+(S.under?TY[k].d+S.depth:0));D.pl.forEach(l=>l.l==='tr'?poly(l.p,zk(l.k),'#fbbf24',1.5,[8,6]):poly(l.p,zk(l.k),l.c||TY[l.k].c,TY[l.k].w||4));
  D.tx.forEach(t=>txt(t.t,pr(t.x,t.y,zk(t.k)),t.d?'#fbbf24':'#fff',t.d?11:13,!t.d));
- D.mh.forEach(m=>{const g=pr(m[0],m[1],zg),b=pr(m[0],m[1],zk(m[2]));ctx.beginPath();seg(g,b);ctx.strokeStyle='#f472b6';ctx.lineWidth=2;ctx.stroke();
-  const ring=[];for(let i=0;i<=24;i++){const t=i/24*6.2832;ring.push(m[0]+.6*Math.cos(t),m[1]+.6*Math.sin(t))}poly(ring,zg,'#f472b6',3);
-  const dd=Math.hypot(m[0]-P[0],m[1]-P[1]);txt(TY[m[2]].n+' · '+dd.toFixed(0)+' m',pr(m[0],m[1],zg+1.2),'#f9a8d4',14,1)});
+ D.mh.forEach(m=>{const mc=m[3]||TY[m[2]].c,g=pr(m[0],m[1],zg),b=pr(m[0],m[1],zk(m[2]));ctx.beginPath();seg(g,b);ctx.strokeStyle=mc;ctx.lineWidth=2;ctx.stroke();
+  const ring=[];for(let i=0;i<=24;i++){const t=i/24*6.2832;ring.push(m[0]+.6*Math.cos(t),m[1]+.6*Math.sin(t))}poly(ring,zg,mc,3);
+  const dd=Math.hypot(m[0]-P[0],m[1]-P[1]);txt(TY[m[2]].n+' · '+dd.toFixed(0)+' m',pr(m[0],m[1],zg+1.2),'#fff',14,1)});
  // minimap
  const h=hd*Math.PI/180;
  const K=2.2*55/80*1.0;const m2=(x,y)=>{const dx=x-P[0],dy=y-P[1];return[110+K*(dx*Math.cos(h)-dy*Math.sin(h)),110-K*(dx*Math.sin(h)+dy*Math.cos(h))]};
  mx.save();mx.beginPath();mx.arc(110,110,108,0,7);mx.clip();
- D.pl.forEach(l=>{mx.beginPath();for(let i=0;i<l.p.length;i+=2){const q=m2(l.p[i],l.p[i+1]);i?mx.lineTo(q[0],q[1]):mx.moveTo(q[0],q[1])}mx.strokeStyle=l.l==='tr'?'#fbbf24':TY[l.k].c;mx.lineWidth=l.l==='tr'?1:3;mx.stroke()});
- D.mh.forEach(m=>{const q=m2(m[0],m[1]);mx.fillStyle='#f472b6';mx.beginPath();mx.arc(q[0],q[1],5,0,7);mx.fill()});mx.restore();
+ D.pl.forEach(l=>{mx.beginPath();for(let i=0;i<l.p.length;i+=2){const q=m2(l.p[i],l.p[i+1]);i?mx.lineTo(q[0],q[1]):mx.moveTo(q[0],q[1])}mx.strokeStyle=l.l==='tr'?'#fbbf24':(l.c||TY[l.k].c);mx.lineWidth=l.l==='tr'?1:3;mx.stroke()});
+ D.mh.forEach(m=>{const q=m2(m[0],m[1]);mx.fillStyle=m[3]||TY[m[2]].c;mx.beginPath();mx.arc(q[0],q[1],5,0,7);mx.fill()});mx.restore();
  const dc=Math.hypot(C[0]-P[0],C[1]-P[1]);
  if(dc*K>100){const q=m2(C[0],C[1]),a=Math.atan2(q[1]-110,q[0]-110);mx.save();mx.translate(110+90*Math.cos(a),110+90*Math.sin(a));mx.rotate(a);mx.fillStyle='#f87171';mx.beginPath();mx.moveTo(12,0);mx.lineTo(-8,-9);mx.lineTo(-8,9);mx.fill();mx.restore()}
  mx.fillStyle='#fff';mx.beginPath();mx.moveTo(110,98);mx.lineTo(102,118);mx.lineTo(118,118);mx.fill();
  const nd=nearest(P);
- $('info').textContent='Heading '+(hd|0)+'° · '+(S.sim?'Simulated':'GPS ±'+S.acc.toFixed(0)+' m')+' · Items '+S.cnt+' · Nearest line '+(nd<1e8?nd.toFixed(0)+' m':'-');
- const w=$('warn');let msg=DB.areas.some(x=>x.L.length)?'':'Add an area and import a layer first (menu ☰ → Import layer).';
- if(S.nocam)msg='Camera could not start. Open the link directly in Chrome/Safari and allow camera access. Showing a dark background for now.';else if(dc>400)msg='Project center is '+(dc>1000?(dc/1000).toFixed(1)+' km':dc.toFixed(0)+' m')+'Simulated';
- else if(S.nocam)msg='Camera unavailable. Open the link directly in your browser and allow camera access.';
- else if(S.ok&&!S.abs&&S.cmp==null&&!S.sim&&!S.warned)msg='Absolute compass not available on this device; directions may be wrong.';
+ $('info').textContent=t('heading')+' '+(hd|0)+'° · '+(S.sim?t('simulated'):'GPS ±'+S.acc.toFixed(0)+' m')+' · '+t('items')+' '+S.cnt+' · '+t('nearest')+' '+(nd<1e8?nd.toFixed(0)+' m':'-');
+ const w=$('warn');let msg=DB.areas.some(x=>x.L.length)?'':t('needArea');
+ if(S.nocam)msg=t('camDark');else if(dc>400)msg=t('center')+' '+(dc>1000?(dc/1000).toFixed(1)+' km':dc.toFixed(0)+' m')+' '+t('away');
+ else if(S.nocam)msg=t('camNA');
+ else if(S.ok&&!S.abs&&S.cmp==null&&!S.sim&&!S.warned)msg=t('noCompass');
  w.hidden=!msg;w.textContent=msg}
 function loop(){if(!S.plan)draw();requestAnimationFrame(loop)}
 async function cam(){S.nocam=0;S.err='';if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){S.nocam=1;S.err='getUserMedia unavailable (iframe or non-HTTPS)';return}let s=null;for(const c of[{video:{facingMode:{ideal:'environment'}},audio:false},{video:true,audio:false}]){try{s=await navigator.mediaDevices.getUserMedia(c);break}catch(e){S.err=e.name+': '+e.message}}if(!s){S.nocam=1;return}S.err='';v.srcObject=s;try{await v.play()}catch(e){S.err='play: '+e.name}}
 async function start(sim){S.started=1;S.sim=sim;$('st').hidden=true;
  try{if(window.DeviceOrientationEvent&&DeviceOrientationEvent.requestPermission)await DeviceOrientationEvent.requestPermission()}catch(e){}
  addEventListener('deviceorientationabsolute',onOri,true);addEventListener('deviceorientation',onOri,true);
- if(!sim&&navigator.geolocation&&!S.gw)navigator.geolocation.watchPosition(onGps,()=>{$('warn').hidden=0;$('warn').textContent='Location permission denied.'},{enableHighAccuracy:true,maximumAge:0,timeout:20000});
+ if(!sim&&navigator.geolocation&&!S.gw)navigator.geolocation.watchPosition(onGps,()=>{$('warn').hidden=0;$('warn').textContent=t('locDenied')},{enableHighAccuracy:true,maximumAge:0,timeout:20000});
  requestAnimationFrame(loop);
  cam();
- setTimeout(()=>{if(!S.ok){S.drag=1;$('warn').textContent='Heading '}},2500)}
+ setTimeout(()=>{if(!S.ok){S.drag=1;$('warn').textContent=t('noSensor')}},2500)}
 $('go').onclick=()=>start(0);$('sim').onclick=()=>start(1);
 let dg=null;cv.onpointerdown=e=>dg=e;cv.onpointermove=e=>{if(!S.drag||!dg||!e.buttons&&e.pointerType==='mouse')return;S.a=(S.a-(e.clientX-dg.clientX)*.3+360)%360;S.b=Math.max(10,Math.min(170,S.b-(e.clientY-dg.clientY)*.2));dg=e};cv.onpointerup=()=>dg=null;
 document.querySelectorAll('[data-m]').forEach(b=>b.onclick=()=>{const h=head(mat(S.yf))*Math.PI/180,f=[Math.sin(h),Math.cos(h)],r=[Math.cos(h),-Math.sin(h)],m=b.dataset.m,s=S.step*(m=='f'||m=='r'?1:-1),d=m=='f'||m=='b'?f:r;S.off[0]+=d[0]*s;S.off[1]+=d[1]*s});
 $('rs').onclick=()=>S.off=[0,0];$('cm').onclick=cam;$('gr').onclick=()=>$('set').hidden=!$('set').hidden;
 [['dp','depth','dpv'],['ey','eye','eyv'],['fv','fov','fvv'],['sp','step','spv']].forEach(([i,k,o])=>$(i).oninput=e=>{S[k]=+e.target.value;$(o).textContent=e.target.value});
-
 function fixC(a){let b=null;a.L.forEach(l=>{b=b?[Math.min(b[0],l.b[0]),Math.min(b[1],l.b[1]),Math.max(b[2],l.b[2]),Math.max(b[3],l.b[3])]:l.b.slice()});a.c=b?[(b[0]+b[2])/2,(b[1]+b[3])/2]:[0,0]}
-function bbox(o){let b=[1e9,1e9,-1e9,-1e9];const u=(x,y)=>{b=[Math.min(b[0],x),Math.min(b[1],y),Math.max(b[2],x),Math.max(b[3],y)]};o.l.forEach(a=>{for(let i=0;i<a.length;i+=2)u(a[i],a[i+1])});o.p.forEach(p=>u(p[0],p[1]));o.t.forEach(t=>u(t.x,t.y));return b}
-function feats(gj,out){const rr=x=>Math.round(x*1e6)/1e6,ln=c=>{const a=[];c.forEach(q=>a.push(rr(q[0]),rr(q[1])));if(a.length>3)out.l.push(a)};
- const g=(G,pr)=>{if(!G)return;const c=G.coordinates;switch(G.type){case'Point':{const lb=pr&&pr.label,nm=pr&&(pr.name||pr.Name||pr.NAME);if(!lb)out.p.push([rr(c[0]),rr(c[1])]);if(lb||nm)out.t.push({t:String(lb||nm).slice(0,30),x:rr(c[0]),y:rr(c[1])});break}
-  case'MultiPoint':c.forEach(q=>g({type:'Point',coordinates:q},pr));break;case'LineString':ln(c);break;case'MultiLineString':c.forEach(ln);break;case'Polygon':c.forEach(ln);break;case'MultiPolygon':c.forEach(p=>p.forEach(ln));break;case'GeometryCollection':G.geometries.forEach(x=>g(x,pr))}};
+function bbox(o){let b=[1e9,1e9,-1e9,-1e9];const u=(x,y)=>{b=[Math.min(b[0],x),Math.min(b[1],y),Math.max(b[2],x),Math.max(b[3],y)]};o.l.forEach(a=>{for(let i=0;i<a.length;i+=2)u(a[i],a[i+1])});o.p.forEach(p=>u(p[0],p[1]));(o.t||[]).forEach(q=>u(q.x,q.y));return b}
+const clean=p=>{const o={};if(p)Object.keys(p).slice(0,40).forEach(k=>{const w=p[k];if(w!==null&&w!==undefined&&typeof w!=='object')o[k]=String(w).slice(0,80)});return o};
+function feats(gj,out){const rr=x=>Math.round(x*1e6)/1e6,ln=(c,pr)=>{const a=[];c.forEach(q=>a.push(rr(q[0]),rr(q[1])));if(a.length>3){out.l.push(a);out.la.push(clean(pr))}};
+ const g=(G,pr)=>{if(!G)return;const c=G.coordinates;switch(G.type){case'Point':out.p.push([rr(c[0]),rr(c[1])]);out.pa.push(clean(pr));break;
+  case'MultiPoint':c.forEach(q=>g({type:'Point',coordinates:q},pr));break;case'LineString':ln(c,pr);break;case'MultiLineString':c.forEach(q=>ln(q,pr));break;case'Polygon':c.forEach(q=>ln(q,pr));break;case'MultiPolygon':c.forEach(p=>p.forEach(q=>ln(q,pr)));break;case'GeometryCollection':G.geometries.forEach(x=>g(x,pr))}};
  (Array.isArray(gj)?gj:[gj]).forEach(j=>{const f=j.type==='FeatureCollection'?j.features:j.type==='Feature'?[j]:[{geometry:j,properties:{}}];f.forEach(x=>g(x.geometry,x.properties))})}
-// ---- UI helpers
-const toast=t=>{const e=$('toast');e.textContent=t;e.hidden=0;clearTimeout(toast.t);toast.t=setTimeout(()=>e.hidden=1,3000)};
+const toast=m=>{const e=$('toast');e.textContent=m;e.hidden=0;clearTimeout(toast.t);toast.t=setTimeout(()=>e.hidden=1,3000)};
 const dlgShow=h=>{$('dlg').innerHTML=h;$('dlgw').hidden=0},dlgClose=()=>{$('dlgw').hidden=1;$('dlg').innerHTML=''};
-const ask=(t,val,cb)=>{dlgShow(`<h3>${t}</h3><label><input type=text id=ai value='${esc(val||'')}'></label><div class=act><button id=ac>Cancel</button><button class=pr id=ao>OK</button></div>`);$('ac').onclick=dlgClose;$('ao').onclick=()=>{const x=$('ai').value.trim();dlgClose();if(x)cb(x)}};
-function refresh(){const p=DB.projects[DB.cur];$('pn').textContent=p.n;$('ar2').textContent=p.areas.length+' area(s) · '+p.areas.reduce((s,a)=>s+a.L.length,0)+' layer(s)'}
+const ask=(m,val,cb)=>{dlgShow(`<h3>${m}</h3><label><input type=text id=ai value='${esc(val||'')}'></label><div class=act><button id=ac>${t('cancel')}</button><button class=pr id=ao>${t('ok')}</button></div>`);$('ac').onclick=dlgClose;$('ao').onclick=()=>{const x=$('ai').value.trim();dlgClose();if(x)cb(x)}};
+function refresh(){const p=S.open&&DB.projects[DB.cur];$('pn').textContent=p?p.n:t('noProject');$('ar2').textContent=p?t('cnt',{a:p.areas.length,l:p.areas.reduce((s,a)=>s+a.L.length,0)}):t('tapOpen')}
 function view(m){S.plan=m==='map'?1:0;$('mapw').hidden=!S.plan;['top','mm','arc'].forEach(i=>$(i).hidden=!!S.plan);$('set').hidden=1;$('warn').hidden=1;$('vm').classList.toggle('on',!!S.plan);$('va').classList.toggle('on',!S.plan);$('chip').hidden=!S.plan;$('st').hidden=!(!S.plan&&!S.started);if(S.plan&&MAP)setTimeout(()=>MAP.invalidateSize(),60)}
-// ---- map (plan) view
+// ---- map
 function needL(){return new Promise(res=>{if(window.L)return res();const l=document.createElement('link');l.rel='stylesheet';l.href='https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css';document.head.appendChild(l);const s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js';s.onload=res;s.onerror=res;document.head.appendChild(s)})}
-function initMap(){MAP=L.map('map',{zoomControl:false}).setView([30,50],4);L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap'}).addTo(MAP);L.control.scale({imperial:false}).addTo(MAP);GL=L.layerGroup().addTo(MAP);MAP.on('zoomend',drawPlan)}
+const ESRI='https://server.arcgisonline.com/ArcGIS/rest/services/',EA='Tiles © Esri — Esri, Maxar, Earthstar Geographics, USDA, USGS, GIS User Community';
+const BM={osm:{u:'https://tile.openstreetmap.org/{z}/{x}/{y}.png',a:'© OpenStreetMap',z:19},sat:{u:ESRI+'World_Imagery/MapServer/tile/{z}/{y}/{x}',a:EA,z:19},hyb:{u:ESRI+'World_Imagery/MapServer/tile/{z}/{y}/{x}',o:ESRI+'Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}',a:EA,z:19},topo:{u:'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',a:'© OpenTopoMap (CC-BY-SA), © OpenStreetMap',z:17},none:{}};
+function setBase(k){SET.bm=k;saveSet();if(MAP){BL.forEach(x=>MAP.removeLayer(x));BL=[];const b=BM[k];if(b.u)BL.push(L.tileLayer(b.u,{maxZoom:b.z,attribution:b.a,subdomains:'abc'}).addTo(MAP).bringToBack());if(b.o)BL.push(L.tileLayer(b.o,{maxZoom:b.z}).addTo(MAP))}applyTheme()}
+function initMap(){MAP=L.map('map',{zoomControl:false}).setView([30,50],4);L.control.scale({imperial:false}).addTo(MAP);GL=L.layerGroup().addTo(MAP);MAP.on('zoomend',drawPlan);setBase(SET.bm)}
 function planUser(){if(!MAP||!S.ll)return;const ll=[S.ll[1],S.ll[0]];if(UM)UM.setLatLng(ll);else UM=L.circleMarker(ll,{radius:8,color:'#fff',weight:3,fillColor:'#2563eb',fillOpacity:1}).addTo(MAP)}
+const pop=(a,l)=>'<b>'+esc(l.n)+'</b>'+(a&&Object.keys(a).length?'<table class=at>'+Object.keys(a).slice(0,20).map(k=>`<tr><td>${esc(k)}</td><td>${esc(a[k])}</td></tr>`).join('')+'</table>':'');
 function drawPlan(){if(!MAP)return;GL.clearLayers();const bs=[],z=MAP.getZoom();
- DB.areas.forEach(a=>{if(!a.on)return;a.L.forEach(l=>{if(!l.on)return;const g=l.g;
-  g.l.forEach(p=>{const q=[];for(let i=0;i<p.length;i+=2)q.push([p[i+1],p[i]]);L.polyline(q,{color:l.c,weight:l.w||4}).bindTooltip(esc(a.n)+' · '+esc(l.n)).addTo(GL);bs.push(...q)});
-  g.p.forEach(m=>{L.circleMarker([m[1],m[0]],{radius:5,color:l.c,weight:2,fillColor:'#fff',fillOpacity:.9}).bindTooltip(esc(l.n)).addTo(GL);bs.push([m[1],m[0]])});
-  g.t.forEach(t=>bs.push([t.y,t.x]));if(z>=18)g.t.forEach(t=>L.marker([t.y,t.x],{icon:L.divIcon({className:'lb',html:esc(t.t)}),interactive:false}).addTo(GL))})});
+ DB.areas.forEach(a=>{if(!a.on)return;a.L.forEach(l=>{if(!l.on)return;const g=l.g,lbl=(at,ll)=>{const w=l.lf&&at&&at[l.lf];if(z>=17&&w!=null&&w!=='')L.marker(ll,{icon:L.divIcon({className:'lb',html:esc(w)}),interactive:false}).addTo(GL)};
+  g.l.forEach((p,i)=>{const q=[],at=g.la&&g.la[i];for(let j=0;j<p.length;j+=2)q.push([p[j+1],p[j]]);L.polyline(q,{color:cf(l,at),weight:l.w||4}).bindPopup(pop(at,l)).addTo(GL);bs.push(...q);lbl(at,q[Math.floor((q.length-1)/2)])});
+  g.p.forEach((m,i)=>{const at=g.pa&&g.pa[i];if(l.ps!=='none')L.circleMarker([m[1],m[0]],{radius:5,color:cf(l,at),weight:2,fillColor:'#fff',fillOpacity:.9}).bindPopup(pop(at,l)).addTo(GL);bs.push([m[1],m[0]]);lbl(at,[m[1],m[0]])});
+  (g.t||[]).forEach(q=>{bs.push([q.y,q.x]);if(z>=17&&!l.lf)L.marker([q.y,q.x],{icon:L.divIcon({className:'lb',html:esc(q.t)}),interactive:false}).addTo(GL)})})});
  if(bs.length&&!S.fit){S.fit=1;MAP.fitBounds(bs,{maxZoom:19,padding:[40,40]})}planUser()}
-// ---- AR helpers
-function anchor(){const raw=S.sim?[0,0]:S.P;if(!raw){toast('GPS position not ready yet');return}let b=null,bd=1e18;const t=(x,y)=>{const d=Math.hypot(x-raw[0],y-raw[1]);if(d<bd){bd=d;b=[x,y]}};D.mh.forEach(m=>t(m[0],m[1]));if(!b)D.pl.forEach(l=>{for(let i=0;i<l.p.length;i+=2)t(l.p[i],l.p[i+1])});if(!b){toast('No visible features to snap to');return}S.off=[b[0]-raw[0],b[1]-raw[1]];toast('Position snapped to the nearest point (was '+bd.toFixed(0)+' m away)')}
-// ---- projects / layers / dialogs
-const TYPES={Water:['#039be5',1.2],Gas:['#ff9800',1],Electric:['#f44336',.8],Telecom:['#9c27b0',.6],Sewer:['#8bc34a',2.5],Other:['#607d8b',1]};
-const GS=[[/gas|گاز/i,'Gas'],[/elec|power|برق/i,'Electric'],[/tel|phone|مخابر/i,'Telecom'],[/sew|waste|فاضلاب/i,'Sewer'],[/water|آب/i,'Water']];
-function projects(){dlgShow('<h3>Projects</h3>'+DB.projects.map((p,i)=>`<div class=li><label style='flex:1;margin:0'><input type=radio name=pp data-p=${i} ${i==DB.cur?'checked':''}> ${esc(p.n)} <small>${p.areas.length} area(s)</small></label><button class=tb data-pr=${i}>Rename</button><button class=tb data-px=${i}>Delete</button></div>`).join('')+'<div class=act><button id=pnw>New project</button><button class=pr id=pcl>Close</button></div>');
- const q=(s,f)=>$('dlg').querySelectorAll(s).forEach(f),sw=()=>{S.fit=0;S.off=[0,0];setArea(0);save();refresh();drawPlan()};
- q('[data-p]',e=>e.onchange=()=>{DB.cur=+e.dataset.p;sw();projects()});
- q('[data-pr]',e=>e.onclick=()=>ask('Rename project',DB.projects[+e.dataset.pr].n,n=>{DB.projects[+e.dataset.pr].n=n;save();refresh();projects()}));
- q('[data-px]',e=>e.onclick=()=>{if(DB.projects.length<2){toast('At least one project is required');return}if(confirm('Delete this project and all its areas?')){DB.projects.splice(+e.dataset.px,1);DB.cur=0;sw();projects()}});
- $('pnw').onclick=()=>ask('New project name','',n=>{DB.projects.push({id:'p'+Date.now().toString(36),n,areas:[]});DB.cur=DB.projects.length-1;sw();projects()});$('pcl').onclick=dlgClose}
-function sheet(){const s=$('sheet');s.hidden=0;const p=DB.projects[DB.cur];
- s.innerHTML=`<div class=li><b style='flex:1'>Layers · ${esc(p.n)}</b><button class=tb id=sna>+ Area</button><button class=tb id=sxx>✕</button></div>`+(p.areas.length?'':'<p>No areas yet. Tap “+ Area”, then add layers from files.</p>')+
- p.areas.map((a,i)=>`<div class='li a'><input type=checkbox data-a=${i} ${a.on?'checked':''}><span style='flex:1'>${esc(a.n)}</span><button class=tb data-ad=${i}>+ Layer</button><button class=tb data-ae=${i}>Edit</button></div>`+a.L.map((l,j)=>`<div class=li data-lp=${i}_${j}><input type=checkbox data-l=${i}_${j} ${l.on?'checked':''}><span class=sw style='background:${l.c}'></span><span style='flex:1'>${esc(l.n)}</span><small>${l.d} m</small></div>`).join('')).join('');
+function anchor(){const raw=S.sim?[0,0]:S.P;if(!raw){toast(t('gpsNotReady'));return}let b=null,bd=1e18;const q=(x,y)=>{const d=Math.hypot(x-raw[0],y-raw[1]);if(d<bd){bd=d;b=[x,y]}};D.mh.forEach(m=>q(m[0],m[1]));if(!b)D.pl.forEach(l=>{for(let i=0;i<l.p.length;i+=2)q(l.p[i],l.p[i+1])});if(!b){toast(t('nothingSnap'));return}S.off=[b[0]-raw[0],b[1]-raw[1]];toast(t('snapped',{d:bd.toFixed(0)}))}
+// ---- projects
+function openP(i){DB.cur=i;S.open=1;S.fit=0;S.off=[0,0];$('wel').hidden=1;dlgClose();setArea(0);save();refresh();drawPlan()}
+function newP(){ask(t('newName'),'',n=>{DB.projects.push({id:'p'+Date.now().toString(36),n,areas:[]});openP(DB.projects.length-1);toast(t('created'))})}
+function delP(i){if(!confirm(t('delPq')))return;const was=S.open&&i==DB.cur;DB.projects.splice(i,1);if(i<DB.cur)DB.cur--;if(DB.cur>=DB.projects.length)DB.cur=Math.max(0,DB.projects.length-1);save();if(was){dlgClose();welcome()}else projects()}
+function projects(){dlgShow(`<h3>${t('projects')}</h3>`+(DB.projects.length?'':`<p>${t('noneYet')}</p>`)+DB.projects.map((p,i)=>`<div class=li><label style='flex:1;margin:0'><input type=radio name=pp data-p=${i} ${S.open&&i==DB.cur?'checked':''}> ${esc(p.n)} <small>${t('cnt',{a:p.areas.length,l:p.areas.reduce((s,a)=>s+a.L.length,0)})}</small></label><button class=tb data-pr=${i}>${t('rename')}</button><button class=tb data-px=${i}>${t('delete')}</button></div>`).join('')+`<div class=act><button id=pnw>${t('newProject')}</button><button class=pr id=pcl>${t('close')}</button></div>`);
+ const q=(s,f)=>$('dlg').querySelectorAll(s).forEach(f);
+ q('[data-p]',e=>e.onchange=()=>openP(+e.dataset.p));
+ q('[data-pr]',e=>e.onclick=()=>ask(t('renameP'),DB.projects[+e.dataset.pr].n,n=>{DB.projects[+e.dataset.pr].n=n;save();refresh();projects()}));
+ q('[data-px]',e=>e.onclick=()=>delP(+e.dataset.px));$('pnw').onclick=newP;$('pcl').onclick=dlgClose}
+function welcome(){S.open=0;setArea(0);refresh();drawPlan();dr(0);$('sheet').hidden=1;dlgClose();const w=$('wel'),n=DB.projects.length,last=DB.projects[DB.cur];w.hidden=0;
+ w.innerHTML=`<div class=wc><h2>AR-Links</h2><p>${t('drSub')}</p>`+(n?`<button class='wb pr' data-w=last><small>${t('openLast')}</small><b>${esc(last.n)}</b></button>`:'')+`<button class=wb data-w=new><b>${t('newProject')}</b></button>`+(n>1?`<button class=wb data-w=pick><b>${t('choose',{n})}</b></button>`:'')+`<button class=lk data-w=res>${t('restoreBk')}</button></div>`;
+ w.querySelectorAll('[data-w]').forEach(b=>b.onclick=()=>{const k=b.dataset.w;if(k==='last')openP(DB.cur);else if(k==='new')newP();else if(k==='res')$('fb').click();else wpick()})}
+function wpick(){$('wel').innerHTML=`<div class=wc><h2>${t('projects')}</h2><p>${t('chooseP')}</p>`+DB.projects.map((p,i)=>`<button class=wb data-o=${i}><b>${esc(p.n)}</b><small>${t('cnt',{a:p.areas.length,l:p.areas.reduce((s,a)=>s+a.L.length,0)})}</small></button>`).join('')+`<button class=lk id=wbk>${t('back')}</button></div>`;
+ $('wel').querySelectorAll('[data-o]').forEach(b=>b.onclick=()=>openP(+b.dataset.o));$('wbk').onclick=welcome}
+// ---- layers panel (right drawer)
+function sheet(){if(!S.open){welcome();return}const s=$('sheet');s.hidden=0;const p=DB.projects[DB.cur];
+ s.innerHTML=`<div class=li><b style='flex:1'>${t('layers')} · ${esc(p.n)}</b><button class=tb id=sna>${t('addArea')}</button><button class=tb id=sxx>✕</button></div><div class=sec>${t('basemap')}</div><div class=chips>${Object.keys(BM).map(k=>`<button class='chip ${SET.bm==k?'on':''}' data-bm=${k}>${t('bm_'+k)}</button>`).join('')}</div>`+(p.areas.length?'':`<p>${t('noAreas')}</p>`)+
+ p.areas.map((a,i)=>`<div class='li a'><input type=checkbox data-a=${i} ${a.on?'checked':''}><span style='flex:1'>${esc(a.n)}</span><button class=tb data-ad=${i}>${t('addLayer')}</button><button class=tb data-ae=${i}>${t('edit')}</button></div>`+a.L.map((l,j)=>`<div class=li data-lp=${i}_${j}><input type=checkbox data-l=${i}_${j} ${l.on?'checked':''}><span class=sw style='background:${l.cat?'linear-gradient(90deg,'+Object.values(l.cc||{}).concat(['#999','#ccc']).slice(0,3).join(',')+')':l.c}'></span><span style='flex:1'>${esc(l.n)}${l.lf?' <small>🏷 '+esc(l.lf)+'</small>':''}</span><button class=tb data-lp=${i}_${j}>⋮</button></div>`).join('')).join('');
  const q=(sel,f)=>s.querySelectorAll(sel).forEach(f),ij=e=>e.split('_').map(Number),chg=()=>{save();rebuild();drawPlan();refresh()};
- $('sxx').onclick=()=>s.hidden=1;$('sna').onclick=()=>ask('New area name','',n=>{DB.areas.push({n,on:1,c:[0,0],L:[]});save();refresh();sheet()});
+ $('sxx').onclick=()=>s.hidden=1;$('sna').onclick=()=>ask(t('newArea'),'',n=>{DB.areas.push({n,on:1,c:[0,0],L:[]});save();refresh();sheet()});
+ q('[data-bm]',e=>e.onclick=()=>{setBase(e.dataset.bm);sheet()});
  q('[data-a]',e=>e.onchange=()=>{DB.areas[+e.dataset.a].on=e.checked;chg()});
  q('[data-l]',e=>{e.onclick=ev=>ev.stopPropagation();e.onchange=()=>{const[i,j]=ij(e.dataset.l);DB.areas[i].L[j].on=e.checked;chg()}});
- q('[data-lp]',e=>e.onclick=()=>{const[i,j]=ij(e.dataset.lp);layerDlg(i,j)});
+ q('div[data-lp]',e=>e.onclick=()=>{const[i,j]=ij(e.dataset.lp);layerDlg(i,j)});
  q('[data-ad]',e=>e.onclick=()=>{S.tgt=+e.dataset.ad;$('fl').click()});q('[data-ae]',e=>e.onclick=()=>areaDlg(+e.dataset.ae))}
-function areaDlg(i){const a=DB.areas[i];dlgShow(`<h3>Area</h3><label>Name <input type=text id=an2 value='${esc(a.n)}'></label><div class=act><button id=ax style='color:#c62828'>Delete</button><button id=acn>Cancel</button><button class=pr id=aok>Save</button></div>`);
+function areaDlg(i){const a=DB.areas[i];dlgShow(`<h3>${t('area')}</h3><label>${t('name')} <input type=text id=an2 value='${esc(a.n)}'></label><div class=act><button id=ax class=dg>${t('delete')}</button><button id=acn>${t('cancel')}</button><button class=pr id=aok>${t('save')}</button></div>`);
  $('acn').onclick=dlgClose;$('aok').onclick=()=>{a.n=$('an2').value||a.n;dlgClose();save();refresh();sheet()};
- $('ax').onclick=()=>{if(confirm('Delete this area and its layers?')){DB.areas.splice(i,1);dlgClose();save();setArea(0);S.fit=0;drawPlan();refresh();sheet()}}}
-function layerDlg(i,j){const l=DB.areas[i].L[j];dlgShow(`<h3>Layer properties</h3><label>Name <input type=text id=ln value='${esc(l.n)}'></label><label>Color <input type=color id=lc value=${l.c}></label><label>Line width <input type=number id=lw min=1 max=20 value=${l.w||4}></label><label>Depth (m) <input type=number id=ld step=.1 min=0 value=${l.d}></label><div class=act><button id=lx style='color:#c62828'>Delete</button><button id=lz>Zoom to</button><button id=lcn>Cancel</button><button class=pr id=lok>Save</button></div>`);
+ $('ax').onclick=()=>{if(confirm(t('delAq'))){DB.areas.splice(i,1);dlgClose();save();setArea(0);S.fit=0;drawPlan();refresh();sheet()}}}
+function layerDlg(i,j){const l=DB.areas[i].L[j],F=l.fields||[],W={cat:l.cat||'',cc:Object.assign({},l.cc||{})};
+ dlgShow(`<h3>${t('layerProps')}</h3><label>${t('name')} <input type=text id=ln value='${esc(l.n)}'></label><div class=sec>${t('style')}</div><label><select id=sm><option value=s>${t('single')}</option><option value=c ${F.length?'':'disabled'}>${t('categorized')}</option></select></label><div id=sty></div>
+ <label>${t('lineWidth')} <input type=number id=lw min=1 max=20 value=${l.w||4}></label><label>${t('marker')} <select id=lps><option value=ring ${l.ps!=='none'?'selected':''}>${t('ring')}</option><option value=none ${l.ps==='none'?'selected':''}>${t('noMarker')}</option></select></label>
+ <label>${t('labelBy')} <select id=llf><option value=''>${t('none')}</option>${F.map(f=>`<option ${f==l.lf?'selected':''}>${esc(f)}</option>`).join('')}</select></label><label>${t('depth')} <input type=number id=ld step=.1 min=0 value=${l.d}></label>
+ <div class=act><button id=lx class=dg>${t('delete')}</button><button id=la>${t('attrs')}</button><button id=lz>${t('zoomTo')}</button><button id=lcn>${t('cancel')}</button><button class=pr id=lok>${t('save')}</button></div>`);
+ const sty=()=>{const b=$('sty');if($('sm').value==='s'){W.cat='';b.innerHTML=`<label>${t('color')} <input type=color id=lc value=${l.c}></label>`}
+  else{if(!W.cat)W.cat=F[0];b.innerHTML=`<label>${t('attribute')} <select id=lcat>${F.map(f=>`<option ${f==W.cat?'selected':''}>${esc(f)}</option>`).join('')}</select></label><label>${t('defColor')} <input type=color id=lc value=${l.c}></label>`+uniq(l,W.cat).map((w,k)=>{W.cc[w]=W.cc[w]||PAL[k%PAL.length];return `<label><input type=color data-v='${esc(w)}' value=${W.cc[w]}> <span>${esc(w)}</span></label>`}).join('');
+   $('lcat').onchange=e=>{W.cat=e.target.value;W.cc={};sty()};b.querySelectorAll('[data-v]').forEach(x=>x.onchange=()=>W.cc[x.dataset.v]=x.value)}};
+ $('sm').value=l.cat?'c':'s';$('sm').onchange=sty;sty();
  const done=()=>{dlgClose();save();rebuild();drawPlan();refresh();sheet()};$('lcn').onclick=dlgClose;
- $('lok').onclick=()=>{l.n=$('ln').value||l.n;l.c=$('lc').value;l.w=+$('lw').value||4;l.d=+$('ld').value||0;done()};
- $('lx').onclick=()=>{if(confirm('Delete this layer?')){DB.areas[i].L.splice(j,1);fixC(DB.areas[i]);setArea(S.sa<DB.areas.length?S.sa:0);done()}};
+ $('lok').onclick=()=>{l.n=$('ln').value||l.n;l.w=+$('lw').value||4;l.ps=$('lps').value;l.lf=$('llf').value;l.d=+$('ld').value||0;l.c=$('lc').value;if($('sm').value==='c'){l.cat=W.cat;l.cc=W.cc}else{l.cat='';l.cc={}}done()};
+ $('lx').onclick=()=>{if(confirm(t('delLq'))){DB.areas[i].L.splice(j,1);fixC(DB.areas[i]);setArea(S.sa<DB.areas.length?S.sa:0);done()}};
+ $('la').onclick=()=>attrTable(i,j);
  $('lz').onclick=()=>{dlgClose();$('sheet').hidden=1;view('map');if(MAP)MAP.fitBounds([[l.b[1],l.b[0]],[l.b[3],l.b[2]]],{maxZoom:19,padding:[40,40]})}}
-function impStart(){if(!DB.areas.length){toast('Create an area first (Layers → + Area)');sheet();return}S.tgt=S.sa<DB.areas.length?S.sa:0;$('fl').click()}
+function attrTable(i,j){const l=DB.areas[i].L[j],F=(l.fields||[]).slice(0,12),rows=[].concat(l.g.la||[],l.g.pa||[]);
+ dlgShow(`<h3>${esc(l.n)} · ${t('attrs')}</h3>`+(F.length?`<div style='overflow:auto;max-height:55vh'><table class=at><tr>${F.map(f=>`<th>${esc(f)}</th>`).join('')}</tr>${rows.slice(0,150).map(a=>`<tr>${F.map(f=>`<td>${esc(a&&a[f]!=null?a[f]:'')}</td>`).join('')}</tr>`).join('')}</table></div><small>${rows.length} ${t('features')}</small>`:`<p>${t('noAttrs')}</p>`)+`<div class=act><button class=pr id=ac2>${t('close')}</button></div>`);$('ac2').onclick=()=>layerDlg(i,j)}
+// ---- import
+const TYPES={Water:['#039be5',1.2],Gas:['#ff9800',1],Electric:['#f44336',.8],Telecom:['#9c27b0',.6],Sewer:['#8bc34a',2.5],Other:['#607d8b',1]};
+const GS=[[/gas|گاز/i,'Gas'],[/elec|power|برق/i,'Electric'],[/tel|phone|مخابر/i,'Telecom'],[/sew|waste|فاضلاب/i,'Sewer'],[/water|آب/i,'Water']];
+function impStart(){if(!S.open){welcome();return}if(!DB.areas.length){toast(t('needAreaFirst'));sheet();return}S.tgt=S.sa<DB.areas.length?S.sa:0;$('fl').click()}
 $('fl').onchange=async e=>{const f=e.target.files[0];e.target.value='';if(!f)return;const ext=f.name.split('.').pop().toLowerCase();let gj,crs;
- try{if(ext==='zip'){const buf=await f.arrayBuffer();if(!/\.prj/i.test(new TextDecoder('latin1').decode(new Uint8Array(buf))))throw new Error('This Shapefile ZIP has no .prj file, so its coordinate system is unknown. Add the .prj file and try again.');gj=await shp(buf);crs='read from .prj, converted to WGS 84'}
-  else if(ext==='kml'){gj=toGeoJSON.kml(new DOMParser().parseFromString(await f.text(),'text/xml'));crs='WGS 84 (KML standard)'}
-  else if(ext==='geojson'||ext==='json'){gj=JSON.parse(await f.text());const cn=gj.crs&&gj.crs.properties&&gj.crs.properties.name;if(cn&&!/CRS84|EPSG::?4326|WGS ?84/i.test(cn))throw new Error('This GeoJSON declares another coordinate system ('+cn+'). Only WGS 84 is accepted.');crs='WGS 84 (GeoJSON standard)'}
-  else throw new Error('Unsupported format “.'+ext+'”. Supported: GeoJSON, KML, Shapefile (.zip containing .prj).')}
- catch(x){dlgShow(`<h3>Cannot import</h3><p>${esc(x.message)}</p><div class=act><button class=pr id=oc>OK</button></div>`);$('oc').onclick=dlgClose;return}
+ try{if(ext==='zip'){const buf=await f.arrayBuffer();if(!/\.prj/i.test(new TextDecoder('latin1').decode(new Uint8Array(buf))))throw new Error(t('errPrj'));gj=await shp(buf);crs=t('crsPrj')}
+  else if(ext==='kml'){gj=toGeoJSON.kml(new DOMParser().parseFromString(await f.text(),'text/xml'));crs=t('crsKml')}
+  else if(ext==='geojson'||ext==='json'){gj=JSON.parse(await f.text());const cn=gj.crs&&gj.crs.properties&&gj.crs.properties.name;if(cn&&!/CRS84|EPSG::?4326|WGS ?84/i.test(cn))throw new Error(t('errCrs',{c:cn}));crs=t('crsGj')}
+  else throw new Error(t('errFmt',{e:ext}))}
+ catch(x){dlgShow(`<h3>${t('cantImport')}</h3><p>${esc(x.message)}</p><div class=act><button class=pr id=oc>${t('ok')}</button></div>`);$('oc').onclick=dlgClose;return}
  const nm=f.name.replace(/\.[^.]+$/,''),g=(GS.find(x=>x[0].test(nm))||[0,'Other'])[1];
- dlgShow(`<h3>Import layer</h3><label>Name <input type=text id=dn value='${esc(nm)}'></label><label>Area <select id=ia>${DB.areas.map((a,i)=>`<option value=${i} ${i==S.tgt?'selected':''}>${esc(a.n)}</option>`).join('')}</select></label><label>Type <select id=dt>${Object.keys(TYPES).map(k=>`<option ${k==g?'selected':''}>${k}</option>`).join('')}</select></label><label>Color <input id=dc type=color value=${TYPES[g][0]}></label><label>Line width <input type=number id=dw min=1 max=20 value=4></label><label>Depth (m) <input type=number id=dd step=.1 min=0 value=${TYPES[g][1]}></label><p style='font-size:12px;color:#555'>Coordinate system: ${esc(crs)}</p><div class=act><button id=dno>Cancel</button><button class=pr id=dok>Import</button></div>`);
+ dlgShow(`<h3>${t('importLayer')}</h3><label>${t('name')} <input type=text id=dn value='${esc(nm)}'></label><label>${t('area')} <select id=ia>${DB.areas.map((a,i)=>`<option value=${i} ${i==S.tgt?'selected':''}>${esc(a.n)}</option>`).join('')}</select></label><label>${t('type')} <select id=dt>${Object.keys(TYPES).map(k=>`<option value=${k} ${k==g?'selected':''}>${t('ty_'+k)}</option>`).join('')}</select></label><label>${t('color')} <input id=dc type=color value=${TYPES[g][0]}></label><label>${t('lineWidth')} <input type=number id=dw min=1 max=20 value=4></label><label>${t('depth')} <input type=number id=dd step=.1 min=0 value=${TYPES[g][1]}></label><p class=nt>${t('crs')}: ${esc(crs)}</p><div class=act><button id=dno>${t('cancel')}</button><button class=pr id=dok>${t('doImport')}</button></div>`);
  $('dt').onchange=()=>{const p=TYPES[$('dt').value];$('dc').value=p[0];$('dd').value=p[1]};$('dno').onclick=dlgClose;
- $('dok').onclick=()=>{const out={l:[],p:[],t:[]};try{feats(gj,out)}catch(x){toast('Error: '+x.message);return}
-  if(!out.l.length&&!out.p.length&&!out.t.length){toast('No geometry found in the file');return}
-  const b=bbox(out);if(!(Math.abs(b[0])<=180&&Math.abs(b[2])<=180&&Math.abs(b[1])<=90&&Math.abs(b[3])<=90)){toast('Coordinates are not valid WGS 84 — check the file');return}
-  const ai=+$('ia').value,a=DB.areas[ai];a.L.push({id:'l'+Date.now().toString(36),n:$('dn').value||nm,c:$('dc').value,d:+$('dd').value||0,on:1,w:+$('dw').value||4,g:out,b});fixC(a);dlgClose();save();setArea(ai);S.off=[0,0];S.fit=0;drawPlan();refresh();toast('Layer imported');if(!$('sheet').hidden)sheet()}};
+ $('dok').onclick=()=>{const out={l:[],la:[],p:[],pa:[],t:[]};try{feats(gj,out)}catch(x){toast(x.message);return}
+  if(!out.l.length&&!out.p.length){toast(t('noGeom'));return}
+  const b=bbox(out);if(!(Math.abs(b[0])<=180&&Math.abs(b[2])<=180&&Math.abs(b[1])<=90&&Math.abs(b[3])<=90)){toast(t('badCoord'));return}
+  const fl=[...new Set([].concat(out.la,out.pa).flatMap(a=>Object.keys(a||{})))].slice(0,40),lf=['label','name','Name','NAME'].find(k=>fl.includes(k))||'',ai=+$('ia').value,a=DB.areas[ai];
+  a.L.push({id:'l'+Date.now().toString(36),n:$('dn').value||nm,c:$('dc').value,d:+$('dd').value||0,on:1,w:+$('dw').value||4,ps:fl.includes('label')&&!out.l.length?'none':'ring',lf,cat:'',cc:{},fields:fl,g:out,b});fixC(a);dlgClose();save();setArea(ai);S.off=[0,0];S.fit=0;drawPlan();refresh();toast(t('imported'));if(!$('sheet').hidden)sheet()}};
+// ---- misc dialogs
 function backup(){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(DB)],{type:'application/json'}));a.download='ar-links-backup.json';a.click()}
-$('fb').onchange=async e=>{const f=e.target.files[0];e.target.value='';if(!f)return;try{const d=JSON.parse(await f.text());if(!d.projects&&!Array.isArray(d.areas))throw 0;DB=d;wire();save();S.fit=0;setArea(0);drawPlan();refresh();toast('Backup restored')}catch(x){toast('Not a valid backup file')}};
-function help(){dlgShow(`<h3>Help</h3><p><b>Supported formats</b><br>GeoJSON (WGS 84), KML (WGS 84) and Shapefile as .zip with its .prj file (any coordinate system, converted automatically).</p><p>Formats that do not state their coordinate system (e.g. DXF) are not supported. Convert them in QGIS first, with the correct CRS set.</p><p><b>AR tips</b><br>GPS is only accurate to a few meters. Stand next to a known point and use “Snap to nearest point”.</p><div class=act><button class=pr id=hc>OK</button></div>`);$('hc').onclick=dlgClose}
+$('fb').onchange=async e=>{const f=e.target.files[0];e.target.value='';if(!f)return;try{const d=JSON.parse(await f.text());if(!d.projects&&!Array.isArray(d.areas))throw 0;DB=d;wire();save();toast(t('backupOk'));welcome()}catch(x){toast(t('backupBad'))}};
+function help(){dlgShow(`<h3>${t('help')}</h3>${t('helpTxt')}<div class=act><button class=pr id=hc>${t('ok')}</button></div>`);$('hc').onclick=dlgClose}
+function settings(){dlgShow(`<h3>${t('settings')}</h3><label>${t('language')} <select id=sl><option value=en>English</option><option value=fa>فارسی</option></select></label><label>${t('theme')} <select id=sth>${['system','light','dark'].map(k=>`<option value=${k}>${t('th_'+k)}</option>`).join('')}</select></label><div class=act><button class=pr id=so>${t('ok')}</button></div>`);
+ $('sl').value=SET.lang;$('sth').value=SET.theme;$('sth').onchange=e=>{SET.theme=e.target.value;saveSet();applyTheme()};
+ $('sl').onchange=e=>{SET.lang=e.target.value;saveSet();applyLang();refresh();if(!$('wel').hidden)welcome();if(!$('sheet').hidden)sheet();settings()};$('so').onclick=dlgClose}
 // ---- wiring
 const dr=o=>{$('drawer').classList.toggle('o',!!o);$('scrim').hidden=!o};
 $('mnu').onclick=()=>dr(1);$('scrim').onclick=()=>dr(0);
-document.querySelectorAll('#drawer [data-go]').forEach(b=>b.onclick=()=>{dr(0);({proj:projects,lay:sheet,imp:impStart,bak:backup,res:()=>$('fb').click(),help})[b.dataset.go]()});
-$('pt0').onclick=projects;$('vm').onclick=()=>view('map');$('va').onclick=()=>view('ar');$('stc').onclick=()=>view('map');
+document.querySelectorAll('#drawer [data-go]').forEach(b=>b.onclick=()=>{dr(0);({proj:projects,close:welcome,lay:sheet,imp:impStart,bak:backup,res:()=>$('fb').click(),set:settings,help})[b.dataset.go]()});
+$('pt0').onclick=projects;$('ttl').onclick=()=>S.open?projects():welcome();$('vm').onclick=()=>view('map');$('va').onclick=()=>view('ar');$('stc').onclick=()=>view('map');
 $('lyb').onclick=()=>{if($('sheet').hidden)sheet();else $('sheet').hidden=true};
 $('fx').onclick=()=>{S.fit=0;drawPlan()};
-$('fl2').onclick=()=>{if(!navigator.geolocation){toast('Location unavailable');return}navigator.geolocation.getCurrentPosition(p=>{onGps(p);if(MAP)MAP.setView([p.coords.latitude,p.coords.longitude],Math.max(MAP.getZoom(),17))},()=>toast('Location unavailable — allow Location access'),{enableHighAccuracy:true,timeout:15000})};
+$('fl2').onclick=()=>{if(!navigator.geolocation){toast(t('locUnavail'));return}navigator.geolocation.getCurrentPosition(p=>{onGps(p);if(MAP)MAP.setView([p.coords.latitude,p.coords.longitude],Math.max(MAP.getZoom(),17))},()=>toast(t('locUnavail')),{enableHighAccuracy:true,timeout:15000})};
 $('an').onclick=anchor;$('ud').onchange=e=>S.under=e.target.checked?1:0;$('pt').oninput=e=>{S.pt=+e.target.value;$('ptv').textContent=e.target.value};
-(async()=>{await load();setArea(0);refresh();view('map');await needL();try{initMap();drawPlan()}catch(e){toast('Map library failed to load')}
- if(navigator.geolocation&&!S.gw){S.gw=1;navigator.geolocation.watchPosition(onGps,e=>{$('chip').textContent='GPS: '+(e.code==1?'permission denied':'unavailable')},{enableHighAccuracy:true,maximumAge:2000,timeout:30000})}
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change',applyTheme);
+(async()=>{applyTheme();applyLang();await load();setArea(0);refresh();view('map');welcome();await needL();try{initMap();drawPlan()}catch(e){toast(t('mapFail'))}
+ if(navigator.geolocation&&!S.gw){S.gw=1;navigator.geolocation.watchPosition(onGps,e=>{$('chip').textContent=t(e.code==1?'gpsDenied':'gpsNA')},{enableHighAccuracy:true,maximumAge:2000,timeout:30000})}
  if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{})})();
 </script></body></html>
