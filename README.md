@@ -1,14 +1,14 @@
-# AR-Links (installable web app)
+# ARG (installable web app) — by Geologix
 
 ## Update on GitHub
-Upload all files of this folder (same names replace the old ones), then close the app completely and open it twice.
+Upload ALL files of this folder to your repository (same names replace the old ones), then close the app completely and open it twice.
 
-## Supported formats (only formats that state their own coordinate system)
+## Formats (only formats that state their own coordinate system)
 GeoJSON (WGS 84) · KML (WGS 84) · Shapefile .zip containing .prj
 
-## Features
-- Projects → Areas → Layers; layers panel on the right (layers icon in the top bar)
-- Layer properties: single color or categorized by attribute, line width, point marker, label by attribute, depth, attribute table
-- Basemaps: Streets, Satellite, Hybrid, Topo, None
+## Interface (modeled on SW Maps)
+- Start dialog: CONTINUE WITH "<last project>" / OPEN PROJECT / CREATE NEW PROJECT
+- Top bar: app + project, Layers panel, AR/MAP switch, ⋮ menu
+- Right-side panels: Layers, Projects, Project Settings; Layer Symbol sheet (single / categorized, label field)
+- Map tools: my location, search, measure distance/area, zoom, redraw, zoom to project
 - Settings: language (English / فارسی), theme (System / Light / Dark)
-- MAP view and AR view
