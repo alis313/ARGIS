@@ -8,7 +8,7 @@ GeoJSON (WGS 84) · KML (WGS 84) · Shapefile .zip containing .prj
 
 ## Interface (modeled on SW Maps)
 - Start dialog: CONTINUE WITH "<last project>" / OPEN PROJECT / CREATE NEW PROJECT
-- Top bar: app + project, Layers panel, AR/MAP switch, ⋮ menu
+- Top bar: app icon (opens the side menu), Layers panel, AR/MAP switch
 - Right-side panels: Layers, Projects, Project Settings; Layer Symbol sheet (single / categorized, label field)
 - Map tools: my location, search, measure distance/area, zoom, redraw, zoom to project
 - Settings: language (English / فارسی), theme (System / Light / Dark)
